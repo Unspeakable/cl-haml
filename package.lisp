@@ -4,7 +4,8 @@
   (:import-from :metatilities
                 :push-end)
   (:export #:haml-file
-           #:haml-str))
+           #:haml-str
+           #:haml))
 
 (in-package :cl-haml)
 

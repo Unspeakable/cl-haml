@@ -92,7 +92,8 @@
         (setf *in-filter* t)
         (make-filter-result tag))
       (:lisp
-        (let ((lisp (read-concat "(" tag ")"))
+        (read-concat "(" tag ")")
+        #+nil(let ((lisp (read-concat "(" tag ")"))
               (htm (list 'cl-who:htm)))
           (metatilities:push-end htm lisp)
           (values lisp htm))))))
@@ -119,20 +120,34 @@
 ;;; ========================================
 ;;;
 (defun indent-diff (blank)
-  (- (length *tag-stack*) (indent-level blank)))
+  (- (length *tag-stack*)
+     (length *offset-stack*)
+     (indent-level blank)))
+
+(defun tag-p (node)
+  (let ((node-car (car node)))
+    (or (keywordp node-car)
+        (member node-car
+                '(cl-who:str cl-who:htm cl-who:esc cl-who:fmt)))))
 
 ;;; ========================================
 ;;;
 (defun set-tag (tag &optional opt)
-  "Insert to *tag-stack*"
+  (awhen (car *tag-stack*)
+    (unless (or opt (not (tag-p tag)) (tag-p it))
+      (push (length *tag-stack*)
+            *offset-stack*)
+      (set-tag (list 'cl-who:htm) t)))
   (swhen (car *tag-stack*)
     (metatilities:push-end tag it))
-  (push (or opt tag) *tag-stack*))
+  (push tag *tag-stack*))
+
 
 ;;; ========================================
 ;;;
 (defun set-text (text)
   (metatilities:push-end text (car *tag-stack*)))
+
 
 ;;; ========================================
 ;;;
@@ -140,6 +155,7 @@
   (let ((str1-len (length str1)))
     (and (<= str1-len (length str2))
          (string= str1 str2 :end2 str1-len))))
+
 
 ;;; ========================================
 ;;;
@@ -154,7 +170,11 @@
                   ;; level > 0 then down indent.
                   (when (plusp level)
                     (dotimes (i level)
-                      (pop *tag-stack*))
+                      (pop *tag-stack*)
+                      (when (and *offset-stack*
+                                 (= (car *offset-stack*) (length *tag-stack*)))
+                        (pop *tag-stack*)
+                        (pop *offset-stack*)))
                     (when *in-filter*
                       (setf *in-filter* nil)))
 
@@ -163,15 +183,17 @@
                         (make-result
                           (concat "\\"
                                   (subseq line
-                                          (* 2 (length *tag-stack*))))))
-                      (multiple-value-call #'set-tag
-                        (make-result rest))))))
+                                          (* (- (length *tag-stack*)
+                                                (length *offset-stack*))
+                                             2)))))
+                      (set-tag (make-result rest))))))
   (car (last *tag-stack*)))
 
 
 (defun haml->sexp (stream)
   (let* ((*tag-stack* nil)
          (*in-filter* nil)
+         (*offset-stack* nil)
          (*line-number* 0))
     (parse stream)))
 
@@ -184,13 +206,14 @@
 
 
 (defun haml-str (str)
-  (with-input-to-string (in str)
+  (with-input-from-string (in str)
     (haml->sexp in)))
 
 
 (defmacro haml (path &key (external-format :utf-8))
   (let ((out (gensym)))
-    `(cl-who:with-html-output-to-string (,out nil
-                                              :prologue "<!DOCTYPE html>"
-                                              :indent t)
-       ,(haml-file path :external-format external-format))))
+    `(with-output-to-string (,out)
+       (cl-who:with-html-output (,out *haml-output*
+                                      :prologue "<!DOCTYPE html>"
+                                      :indent t)
+         ,(haml-file path :external-format external-format)))))

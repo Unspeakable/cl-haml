@@ -4,6 +4,8 @@
 
 (defvar *in-filter* nil)
 
+(defvar *offset-stack* nil)
+
 (defvar *tag-stack* nil)
 
 (defconstant +eof+ 'eof)
