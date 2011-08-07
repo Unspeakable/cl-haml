@@ -1,0 +1,18 @@
+#+TITLE: CL-HAML
+#+AUTHOR: Hiroyuki Tokunaga
+#+EMAIL: inuzini.jiro@gmail.com
+#+OPTIONS: toc:t num:t author:nil creator:nil LaTeX:t
+
+* CL-HAML
+[[http://haml-lang.com/][Haml]]っぽい記法が出来るCommon Lispのテンプレートエンジンです。
+
+** What is this?
+#+BEGIN_QUOTE
+Haml tokes your gross, ugly templates and replaces them with veritable *Haiku*.
+
+Haml is the next step in generating views in your Rails application.
+Haml is refreshing take that is free us from the shitty templating
+languages we have gotten used to.
+
+Haml is based on one primary princple. /Markup should be beautiful/.
+#+END_QUOTE
