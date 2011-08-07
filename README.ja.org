@@ -4,6 +4,7 @@
 Haml for common lisp.
 
 ** Install
+git clone git@github.com:Unspeakable/jiro.git
 git clone git@github.com:Unspeakable/cl-haml.git
 
 
