@@ -55,7 +55,7 @@
 ;;;
 (defun gen-standard-result (tag attr body opt)
   (let ((body (if opt
-                  (if (string= opt "/=")
+                  (if (string= opt "!=")
                       (read-concat "(cl-who:str " body ")")
                       (read-concat "(cl-who:esc (princ-to-string " body "))"))
                   body)))
@@ -163,7 +163,9 @@
   (loop :for line := (read-line in nil +eof+)
         :do (incf *line-number*)
         :until (eq +eof+ line)
-        :unless (or (empty-p (r-trim line)) (start= "!!!" line))
+        :unless (or (empty-p (r-trim line))
+                    (start= "!!!" line)
+                    (start= "-#" line))
           :do (ppcre:register-groups-bind (blank rest)
                   ("^( *)([^ ].*)$" line)
                 (let ((level (indent-diff blank)))
@@ -172,7 +174,8 @@
                     (dotimes (i level)
                       (pop *tag-stack*)
                       (when (and *offset-stack*
-                                 (= (car *offset-stack*) (length *tag-stack*)))
+                                 (= (car *offset-stack*)
+                                    (length *tag-stack*)))
                         (pop *tag-stack*)
                         (pop *offset-stack*)))
                     (when *in-filter*
@@ -181,11 +184,12 @@
                   (if *in-filter*
                       (set-text
                         (make-result
-                          (concat "\\"
-                                  (subseq line
-                                          (* (- (length *tag-stack*)
-                                                (length *offset-stack*))
-                                             2)))))
+                          (concat
+                             "\\"
+                             (subseq line
+                                     (* (- (length *tag-stack*)
+                                           (length *offset-stack*))
+                                        2)))))
                       (set-tag (make-result rest))))))
   (car (last *tag-stack*)))
 

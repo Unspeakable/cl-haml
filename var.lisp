@@ -1,5 +1,7 @@
 (in-package :cl-haml)
 
+(defvar *haml-output* nil)
+
 (defvar *line-number* 0)
 
 (defvar *in-filter* nil)
@@ -29,5 +31,5 @@
 (defconstant* +id+ "#[-_a-zA-Z0-9]+")
 (defconstant* +classes+ "\\.[-\\._a-zA-Z0-9]+")
 (defconstant* +attr+ "{[^}]*}")
-(defconstant* +opt+ "/?=")
+(defconstant* +opt+ "!?=")
 (defconstant* +body+ ".*")
