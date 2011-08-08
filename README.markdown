@@ -12,6 +12,7 @@ Hamlってなんぞ？
 CL-HAMLは、どのくらい Haml？
 ----------------------------
 Hamlとの違いは以下
+
 - Ruby ではなく Common Lispで動作
 - 埋め込みコードも Ruby ではなく Common Lisp
 - ファイル先頭の !!! を無視
