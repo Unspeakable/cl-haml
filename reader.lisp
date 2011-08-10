@@ -7,7 +7,7 @@
 ;;; ========================================
 ;;;
 (defun get-tag (tag id classes)
-  (when (or tag id classes)
+  (when (or tag (blank-string->nil id) (blank-string->nil classes))
     (if (and tag (/= 1 (length tag)))
         (str->keyword (subseq tag 1))
         :div)))
@@ -15,13 +15,13 @@
 ;;; ========================================
 ;;;
 (defun get-attr (attr)
-  (when attr
+  (when (and attr (<= 2 (length attr)))
     (read-concat "(" (subseq attr 1 (1- (length attr))) ")")))
 
 ;;; ========================================
 ;;;
 (defun get-id (id)
-  (when id
+  (when (and id (<= 1 (length id)))
     (subseq id 1)))
 
 ;;; ========================================
@@ -65,7 +65,7 @@
 ;;;
 (defun split-line (line)
   (ppcre:register-groups-bind (filter lisp-block tag id classes attr opt body)
-      ("^(#<+filter+>)?(#<+lisp-block+>)?(#<+tag+>)?(#<+id+>)?(#<+classes+>)?(#<+attr+>)?(#<+opt+>)?(#<+body+>)?$" line)
+      ((concat "^" +filter+ +lisp-block+ +tag+ +id+ +classes+ +attr+ +opt+ +body+ "$") line)
     (let ((tag  (get-tag tag id classes))
           (attr (get-attr attr))
           (body (get-body body)))
