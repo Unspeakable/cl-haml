@@ -9,7 +9,8 @@
   :depends-on (:split-sequence :cl-ppcre :jiro :metatilities :cl-who)
   :components ((:file "package")
                (:file "var")
-               (:file "reader")))
+               (:file "reader")
+               (:file "execute")))
 
 (defmethod perform ((o test-op) (c (eql (find-system :cl-haml))))
   (operate 'load-op :cl-haml-test)
@@ -22,8 +23,4 @@
   :depends-on (:cl-haml :cl-test-more))
 
 (defmethod perform ((o test-op) (c (eql (find-system :cl-haml-test))))
-  (operate 'load-op :cl-haml-test)
-  #+nil (if (funcall (intern (symbol-name :cl-haml-test)
-                       (find-package :cl-haml-test)))
-      (princ "ok")
-      (error "test-op failed!")))
+  (operate 'load-op :cl-haml-test))

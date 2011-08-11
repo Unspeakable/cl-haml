@@ -169,7 +169,6 @@
           :do (ppcre:register-groups-bind (blank rest)
                   ("^( *)([^ ].*)$" line)
                 (let ((level (indent-diff blank)))
-                  ;; level > 0 then down indent.
                   (when (plusp level)
                     (dotimes (i level)
                       (pop *tag-stack*)
@@ -215,9 +214,25 @@
 
 
 (defmacro haml (path &key (external-format :utf-8))
-  (let ((out (gensym)))
-    `(with-output-to-string (,out)
-       (cl-who:with-html-output (,out *haml-output*
-                                      :prologue "<!DOCTYPE html>"
-                                      :indent t)
-         ,(haml-file path :external-format external-format)))))
+  `(with-output-to-string (out)
+     (cl-who:with-html-output (out *haml-output*
+                                   :prologue "<!DOCTYPE html>"
+                                   :indent t)
+       ,(haml-file path :external-format external-format))))
+
+
+(defun define-haml-fn (file)
+  (let ((haml->cl-who (haml-file (merge-pathnames file *haml-file-root*))))
+    (eval
+      `(lambda (params)
+         (declare (ignorable params))
+         (let ,(mapcar (lambda (sym)
+                         `(,sym (getf params ,(str->keyword (subseq (symbol-name sym) 1)))))
+                       (remove-if-not
+                         (lambda (x)
+                           (and (symbolp x) (char= #\@ (char (symbol-name x) 0))))
+                         (remove-duplicates (flatten haml->cl-who))))
+           (cl-who:with-html-output-to-string (out nil
+                                               :prologue "<!DOCTYPE html>"
+                                               :indent t)
+             ,haml->cl-who))))))

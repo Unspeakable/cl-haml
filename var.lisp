@@ -1,5 +1,9 @@
 (in-package :cl-haml)
 
+(defvar *view-lambda-table* (make-hash-table :test 'equal))
+
+(defvar *haml-file-root* nil)
+
 (defvar *haml-output* nil)
 
 (defvar *line-number* 0)
