@@ -1,5 +1,34 @@
 (in-package :cl-haml)
 
+(defun |read-preserving| (&optional (stream *standard-input*)
+                                    (eof-error-p t)
+                                    eof-value)
+  (flet ((skip-whitespace ()
+           (loop :for c := (peek-char nil stream eof-error-p eof-value)
+              :while (member c
+                             jiro::+white-spaces+
+                             :test #'equal)
+              :until (equal c eof-value)
+              :do (read-char stream eof-error-p eof-value))))
+    (skip-whitespace)
+    (let* ((str? (equal (peek-char nil stream eof-error-p eof-value) #\"))
+           (result
+            (loop :for c := (read-char stream eof-error-p eof-value)
+               :for i := 0 :then (1+ i)
+               :until (equal c eof-value)
+               :until (if str?
+                          (and (not (zerop i)) (char= c #\"))
+                          (member c jiro::+white-spaces+ :test #'equal))
+               :finally (unless (or (equal c eof-value)
+                                    (and str? (equal c #\")))
+                          (unread-char c stream))
+               :collect c)))
+      (cond ((null result) eof-value)
+            (str? (coerce (cdr result) 'string))
+            ((char= #\: (car result))
+             (intern (coerce (cdr result) 'string) :keyword))
+            (t (intern (coerce result 'string)))))))
+
 (defun blank-string->nil (str)
   (unless (zerop (length (trim str)))
     str))
@@ -9,14 +38,20 @@
 (defun get-tag (tag id classes)
   (when (or tag (blank-string->nil id) (blank-string->nil classes))
     (if (and tag (/= 1 (length tag)))
-        (str->keyword (subseq tag 1))
-        :div)))
+        (intern (subseq tag 1) :keyword)
+        :|div|)))
 
 ;;; ========================================
 ;;;
 (defun get-attr (attr)
   (when (and attr (<= 2 (length attr)))
-    (read-concat "(" (subseq attr 1 (1- (length attr))) ")")))
+    (let (result
+          (eof 'eof))
+      (with-input-from-string (in (subseq attr 1 (1- (length attr))))
+        (loop :for sym := (|read-preserving| in nil eof)
+              :until (eq eof sym)
+              :do (push sym result)))
+      (nreverse result))))
 
 ;;; ========================================
 ;;;
@@ -39,12 +74,11 @@
 ;;;
 (defun get-body (body)
   (let ((body (blank-string->nil body)))
-    (if (and body (not (empty-p body)))
-        (let ((head-ch (char body 0)))
-          (if (or (char= #\\ head-ch) (char= #\Space head-ch))
-              (subseq body 1)
-              body))
-        body)))
+    (when body
+      (let ((head-ch (char body 0)))
+        (if (or (char= #\\ head-ch) (char= #\Space head-ch))
+            (subseq body 1)
+            body)))))
 
 ;;; ========================================
 ;;;
@@ -87,7 +121,9 @@
       (split-line rest)
     (case switch
       (:standard
-        (if tag `(,tag ,@attr ,body) body))
+        (if tag
+            (if body `(,tag ,@attr ,body) `(,tag ,@attr))
+            body))
       (:filter
         (setf *in-filter* t)
         (make-filter-result tag))
@@ -221,18 +257,25 @@
        ,(haml-file path :external-format external-format))))
 
 
-(defun define-haml-fn (file)
-  (let ((haml->cl-who (haml-file (merge-pathnames file *haml-file-root*))))
+(defun make-haml-fn (file)
+  (let ((haml->cl-who (haml-file file)))
     (eval
-      `(lambda (params)
-         (declare (ignorable params))
-         (let ,(mapcar (lambda (sym)
-                         `(,sym (getf params ,(str->keyword (subseq (symbol-name sym) 1)))))
-                       (remove-if-not
-                         (lambda (x)
-                           (and (symbolp x) (char= #\@ (char (symbol-name x) 0))))
-                         (remove-duplicates (flatten haml->cl-who))))
-           (cl-who:with-html-output-to-string (out nil
-                                               :prologue "<!DOCTYPE html>"
-                                               :indent t)
-             ,haml->cl-who))))))
+     `(lambda (params)
+        (declare (ignorable params))
+        (let ,(mapcar (lambda (sym)
+                        `(,sym (getf params ,(@sym->keyword sym))))
+                      (@symbols haml->cl-who))
+          (cl-who:with-html-output-to-string (out nil
+                                                  :prologue "<!DOCTYPE html>"
+                                                  :indent nil)
+            ,haml->cl-who))))))
+
+(defun @symbols (lst)
+  (remove-if-not
+   (lambda (x)
+     (and (symbolp x)
+          (char= #\@ (char (symbol-name x) 0))))
+   (remove-duplicates (flatten lst))))
+
+(defun @sym->keyword (sym)
+  (str->keyword (subseq (symbol-name sym) 1)))

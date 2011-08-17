@@ -15,5 +15,7 @@
       (setf (gethash file *view-lambda-table*)
             (make-view-fn :file-name file
                           :timestamp timestamp
-                          :lambda (cl-haml:define-haml-fn file))))
+                          :lambda (let ((cl-who:*downcase-tokens-p* nil))
+                                    (make-haml-fn
+                                     (merge-pathnames file *haml-file-root*))))))
     (funcall (view-fn-lambda (gethash file *view-lambda-table*)) params)))
