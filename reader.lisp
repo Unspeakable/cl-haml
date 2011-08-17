@@ -138,8 +138,8 @@
 ;;;
 (defun make-filter-result (filter)
   (case filter
-    (:javascript (list :script :type "text/javascript"))
-    (:css (list :style :type "text/css"))
+    (:|javascript| (list :|script| :|type| "text/javascript"))
+    (:|css| (list :|style| :|type| "text/css"))
     #+nil(:lisp "(progn ")))
 
 ;;; ========================================
@@ -161,10 +161,11 @@
      (indent-level blank)))
 
 (defun tag-p (node)
-  (let ((node-car (car node)))
-    (or (keywordp node-car)
-        (member node-car
-                '(cl-who:str cl-who:htm cl-who:esc cl-who:fmt)))))
+  (unless (atom node)
+    (let ((node-car (car node)))
+      (or (keywordp node-car)
+          (member node-car
+                  '(cl-who:str cl-who:htm cl-who:esc cl-who:fmt))))))
 
 ;;; ========================================
 ;;;
@@ -174,9 +175,12 @@
       (push (length *tag-stack*)
             *offset-stack*)
       (set-tag (list 'cl-who:htm) t)))
-  (swhen (car *tag-stack*)
-    (metatilities:push-end tag it))
-  (push tag *tag-stack*))
+  (if (atom tag)
+      (set-text tag)
+      (progn
+        (swhen (car *tag-stack*)
+          (metatilities:push-end tag it))
+        (push tag *tag-stack*))))
 
 
 ;;; ========================================
