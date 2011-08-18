@@ -1,12 +1,14 @@
 (in-package :cl-haml)
 
+(defvar *white-space-chars* '(#\Space #\Return #\LineFeed #\Tab #\Page))
+
 (defun |read-preserving| (&optional (stream *standard-input*)
                                     (eof-error-p t)
                                     eof-value)
   (flet ((skip-whitespace ()
            (loop :for c := (peek-char nil stream eof-error-p eof-value)
               :while (member c
-                             jiro::+white-spaces+
+                             *white-space-chars*
                              :test #'equal)
               :until (equal c eof-value)
               :do (read-char stream eof-error-p eof-value))))
@@ -18,7 +20,7 @@
                :until (equal c eof-value)
                :until (if str?
                           (and (not (zerop i)) (char= c #\"))
-                          (member c jiro::+white-spaces+ :test #'equal))
+                          (member c *white-space-chars* :test #'equal))
                :finally (unless (or (equal c eof-value)
                                     (and str? (equal c #\")))
                           (unread-char c stream))
@@ -30,7 +32,7 @@
             (t (intern (coerce result 'string)))))))
 
 (defun blank-string->nil (str)
-  (unless (zerop (length (trim str)))
+  (unless (zerop (length (string-trim *white-space-chars* str)))
     str))
 
 ;;; ========================================
@@ -63,12 +65,14 @@
 ;;;
 (defun get-classes (classes attr)
   (when classes
-    (trim
-      (concat (split-sequence:split-sequence
-                 #\.
-                 (subseq classes 1))
-              " "
-              (getf attr :class)))))
+    (string-trim *white-space-chars*
+      (concatenate
+         'string
+         (split-sequence:split-sequence
+            #\.
+            (subseq classes 1))
+         " "
+         (getf attr :class)))))
 
 ;;; ========================================
 ;;;
@@ -83,7 +87,7 @@
 ;;; ========================================
 ;;;
 (defun read-concat (&rest args)
-  (read-from-string (apply #'concat args)))
+  (read-from-string (apply #'concatenate 'string args)))
 
 ;;; ========================================
 ;;;
@@ -108,7 +112,7 @@
       (when classes
         (getf attr :class) (get-classes classes attr))
       (cond (filter
-              `(:filter ,(str->keyword (subseq filter 1))))
+              `(:filter ,(intern (subseq filter 1) :keyword)))
             (lisp-block
               `(:lisp ,(subseq lisp-block 2)))
             (t
@@ -128,19 +132,14 @@
         (setf *in-filter* t)
         (make-filter-result tag))
       (:lisp
-        (read-concat "(" tag ")")
-        #+nil(let ((lisp (read-concat "(" tag ")"))
-              (htm (list 'cl-who:htm)))
-          (metatilities:push-end htm lisp)
-          (values lisp htm))))))
+        (read-concat "(" tag ")")))))
 
 ;;; ========================================
 ;;;
 (defun make-filter-result (filter)
   (case filter
     (:|javascript| (list :|script| :|type| "text/javascript"))
-    (:|css| (list :|style| :|type| "text/css"))
-    #+nil(:lisp "(progn ")))
+    (:|css| (list :|style| :|type| "text/css"))))
 
 ;;; ========================================
 ;;;
@@ -203,7 +202,7 @@
   (loop :for line := (read-line in nil +eof+)
         :do (incf *line-number*)
         :until (eq +eof+ line)
-        :unless (or (empty-p (r-trim line))
+        :unless (or (zerop (length (string-right-trim line)))
                     (start= "!!!" line)
                     (start= "-#" line))
           :do (ppcre:register-groups-bind (blank rest)
@@ -223,7 +222,7 @@
                   (if *in-filter*
                       (set-text
                         (make-result
-                          (concat
+                          (concatenate 'string
                              "\\"
                              (subseq line
                                      (* (- (length *tag-stack*)
@@ -282,4 +281,4 @@
    (remove-duplicates (flatten lst))))
 
 (defun @sym->keyword (sym)
-  (str->keyword (subseq (symbol-name sym) 1)))
+  (intern (subseq (string-upcase sym) 1) :keyword))

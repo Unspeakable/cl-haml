@@ -1,9 +1,10 @@
 (cl:in-package :cl-user)
 
 (defpackage :cl-haml
-  (:use :cl :jiro)
+  (:use :cl)
   (:import-from :metatilities
-                :push-end)
+                :push-end
+                :flatten)
   (:export #:haml-file
            #:haml-str
            #:haml
