@@ -1,7 +1,7 @@
 (cl:in-package :cl-user)
 
 (defpackage :cl-haml
-  (:use :cl)
+  (:use :cl :anaphora)
   (:import-from :metatilities
                 :push-end
                 :flatten)

@@ -52,7 +52,11 @@
       (with-input-from-string (in (subseq attr 1 (1- (length attr))))
         (loop :for sym := (|read-preserving| in nil eof)
               :until (eq eof sym)
-              :do (push sym result)))
+              :do (push sym result)
+                  (let ((value (read in nil eof)))
+                    (when (eq eof value)
+                      (error "Unexpected End of File occurred while reading the Attribute."))
+                    (push value result))))
       (nreverse result))))
 
 ;;; ========================================
@@ -66,13 +70,14 @@
 (defun get-classes (classes attr)
   (when classes
     (string-trim *white-space-chars*
-      (concatenate
+      (apply #'concatenate
          'string
+         (getf attr :class)
+         " "
          (split-sequence:split-sequence
             #\.
             (subseq classes 1))
-         " "
-         (getf attr :class)))))
+         ))))
 
 ;;; ========================================
 ;;;
@@ -103,7 +108,9 @@
 ;;;
 (defun split-line (line)
   (ppcre:register-groups-bind (filter lisp-block tag id classes attr opt body)
-      ((concat "^" +filter+ +lisp-block+ +tag+ +id+ +classes+ +attr+ +opt+ +body+ "$") line)
+      ((concatenate 'string
+                    "^" +filter+ +lisp-block+ +tag+ +id+ +classes+
+                    +attr+ +opt+ +body+ "$") line)
     (let ((tag  (get-tag tag id classes))
           (attr (get-attr attr))
           (body (get-body body)))
@@ -202,7 +209,7 @@
   (loop :for line := (read-line in nil +eof+)
         :do (incf *line-number*)
         :until (eq +eof+ line)
-        :unless (or (zerop (length (string-right-trim line)))
+        :unless (or (zerop (length (string-right-trim *white-space-chars* line)))
                     (start= "!!!" line)
                     (start= "-#" line))
           :do (ppcre:register-groups-bind (blank rest)

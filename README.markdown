@@ -33,8 +33,7 @@ Hamlとの違いは以下
 CL-HAMLを試す
 -------------
 当然、quicklispに入っているはずはないので(個人的には入れるつもりもない)、githubから tarを取ってくるとか git cloneするとかしてください。
-[同じ人の個人的なライブラリ](https://github.com/Unspeakable/jiro)も必要なので注意です。
-あと cl-who, split-sequence, cl-ppcre, metatilities に依存してるので、そちらも忘れずに用意。
+また cl-who, split-sequence, cl-ppcre, metatilities に依存してるので、quicklispや clbuildで用意してください。もちろん tarを直接取ってきても構いません。
 全部 asdf が読んでくれる場所に置いて `(asdf:oos 'asdf:load-op :cl-haml)` とすれば load出来ると思います。
 
 cl-hamlには サンプルな hamlファイルが入ってます。

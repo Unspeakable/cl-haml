@@ -6,7 +6,7 @@
   :serial t
   :author "Hiroyuki Tokunaga <inuzini.jiro@gmail.com>"
   :license "MIT License"
-  :depends-on (:split-sequence :cl-ppcre :metatilities :cl-who)
+  :depends-on (:split-sequence :cl-ppcre :metatilities :cl-who :anaphora)
   :components ((:file "package")
                (:file "var")
                (:file "reader")
