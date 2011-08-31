@@ -6,10 +6,11 @@
                 :push-end
                 :flatten)
   (:export #:haml-file
-           #:haml-str
            #:haml
            #:*haml-file-root*
            #:define-haml-fn
-           #:execute-haml))
+           #:execute-haml
 
-(in-package :cl-haml)
+           #:stylesheet-link-tag
+           #:javascript-include-tag
+           #:link-to))

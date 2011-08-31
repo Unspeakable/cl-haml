@@ -206,37 +206,51 @@
 ;;; ========================================
 ;;;
 (defun parse (in)
-  (loop :for line := (read-line in nil +eof+)
-        :do (incf *line-number*)
-        :until (eq +eof+ line)
-        :unless (or (zerop (length (string-right-trim *white-space-chars* line)))
-                    (start= "!!!" line)
-                    (start= "-#" line))
-          :do (ppcre:register-groups-bind (blank rest)
-                  ("^( *)([^ ].*)$" line)
-                (let ((level (indent-diff blank)))
-                  (when (plusp level)
-                    (dotimes (i level)
-                      (pop *tag-stack*)
-                      (when (and *offset-stack*
-                                 (= (car *offset-stack*)
-                                    (length *tag-stack*)))
+  (let ((doctypes nil))
+    (loop :for line := (read-line in nil +eof+)
+          :do (incf *line-number*)
+          :until (eq +eof+ line)
+          :unless (or (zerop (length (string-right-trim *white-space-chars* line)))
+                      (start= "!!!" line)
+                      (start= "-#" line))
+            :do (loop :while (char= (char line (1- (length line))) #\\)
+                      :do (setf line (concatenate 'string (subseq line 0 (1- (length line))) (read-line in)))
+                          (incf *line-number*))
+                (ppcre:register-groups-bind (blank rest)
+                    ("^( *)([^ ].*)$" line)
+                  (let ((level (indent-diff blank)))
+                    (when (plusp level)
+                      (dotimes (i level)
                         (pop *tag-stack*)
-                        (pop *offset-stack*)))
-                    (when *in-filter*
-                      (setf *in-filter* nil)))
+                        (when (and *offset-stack*
+                                   (= (car *offset-stack*)
+                                      (length *tag-stack*)))
+                          (pop *tag-stack*)
+                          (pop *offset-stack*)))
+                      (when *in-filter*
+                        (setf *in-filter* nil)))
 
-                  (if *in-filter*
-                      (set-text
-                        (make-result
-                          (concatenate 'string
-                             "\\"
-                             (subseq line
-                                     (* (- (length *tag-stack*)
-                                           (length *offset-stack*))
-                                        2)))))
-                      (set-tag (make-result rest))))))
-  (car (last *tag-stack*)))
+                    (if *in-filter*
+                        (set-text
+                          (make-result
+                            (concatenate 'string
+                               "\\"
+                               (subseq line
+                                       (* (- (length *tag-stack*)
+                                             (length *offset-stack*))
+                                          2)))))
+                        (set-tag (make-result rest)))))
+          :if (start= "!!!" line)
+            :do (ppcre:register-groups-bind (type option)
+                    ("^!!! ([\\.a-zA-Z0-9]+)? ?(-a-zA-Z0-9]+)?$" line)
+                  (push (doctype type option) doctypes)))
+    (values (car (last *tag-stack*))
+            (format nil "~{~A~^~%~}" (nreverse doctypes)))))
+
+
+(defun doctype (type option)
+  (awhen (gethash type *doctype-table*)
+    (format nil (car it) (or option (cdr it)))))
 
 
 (defun haml->sexp (stream)
@@ -253,22 +267,24 @@
                       :external-format external-format)
     (haml->sexp in)))
 
-
-(defun haml-str (str)
-  (with-input-from-string (in str)
-    (haml->sexp in)))
-
-
-(defmacro haml (path &key (external-format :utf-8))
-  `(with-output-to-string (out)
-     (cl-who:with-html-output (out *haml-output*
-                                   :prologue "<!DOCTYPE html>"
-                                   :indent t)
-       ,(haml-file path :external-format external-format))))
+(defun haml (haml-path &optional out-path)
+  (multiple-value-bind (sexp doctype)
+      (haml-file haml-path)
+    (eval
+     (if out-path
+         `(with-open-file (out ,out-path
+                               :direction :output
+                               :if-exists :supersede
+                               :if-does-not-exist :create)
+            (cl-who:with-html-output (out out :prologue ,doctype :indent t)
+              ,sexp))
+         `(cl-who:with-html-output-to-string (out nil :prologue ,doctype :indent t)
+            ,sexp)))))
 
 
 (defun make-haml-fn (file)
-  (let ((haml->cl-who (haml-file file)))
+  (multiple-value-bind (haml->cl-who doctype)
+      (haml-file file)
     (eval
      `(lambda (params)
         (declare (ignorable params))
@@ -276,8 +292,8 @@
                         `(,sym (getf params ,(@sym->keyword sym))))
                       (@symbols haml->cl-who))
           (cl-who:with-html-output-to-string (out nil
-                                                  :prologue "<!DOCTYPE html>"
-                                                  :indent nil)
+                                                  :prologue ,doctype
+                                                  :indent t)
             ,haml->cl-who))))))
 
 (defun @symbols (lst)

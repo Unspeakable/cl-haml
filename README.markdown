@@ -38,7 +38,8 @@ CL-HAMLを試す
 
 cl-hamlには サンプルな hamlファイルが入ってます。
 
-    CL-USER> (cl-haml:haml (merge-pathnames "example.haml" (asdf:system-source-directory :cl-haml)))
+    CL-USER> (let ((@l nil))
+               (cl-haml:haml (merge-pathnames "example.haml" (asdf:system-source-directory :cl-haml))))
 
 
 作った人
