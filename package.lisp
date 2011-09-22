@@ -11,6 +11,16 @@
            #:define-haml-fn
            #:execute-haml
 
+           #:render
+           #:cl-haml-builder
+           #:views
+           #:reload-p
+           #:load-root
+           #:prologue
+           #:attribute-quote-char
+           #:empty-tag-end
+
+           #:set-doctype
            #:stylesheet-link-tag
            #:javascript-include-tag
            #:link-to))

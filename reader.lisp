@@ -1,7 +1,13 @@
 (in-package :cl-haml)
 
 (defvar *white-space-chars* '(#\Space #\Return #\LineFeed #\Tab #\Page))
+(defvar *line-number* 0)
+(defvar *in-filter* nil)
+(defvar *offset-stack* nil)
+(defvar *tag-stack* nil)
 
+;;; ========================================
+;;;
 (defun |read-preserving| (&optional (stream *standard-input*)
                                     (eof-error-p t)
                                     eof-value)
@@ -31,6 +37,8 @@
              (intern (coerce (cdr result) 'string) :keyword))
             (t (intern (coerce result 'string)))))))
 
+;;; ========================================
+;;;
 (defun blank-string->nil (str)
   (unless (zerop (length (string-trim *white-space-chars* str)))
     str))
@@ -133,7 +141,7 @@
     (case switch
       (:standard
         (if tag
-            (if body `(,tag ,@attr ,body) `(,tag ,@attr))
+            `(,tag ,@attr ,body)
             body))
       (:filter
         (setf *in-filter* t)
@@ -214,7 +222,9 @@
                       (start= "!!!" line)
                       (start= "-#" line))
             :do (loop :while (char= (char line (1- (length line))) #\\)
-                      :do (setf line (concatenate 'string (subseq line 0 (1- (length line))) (read-line in)))
+                      :do (setf line (concatenate 'string
+                                                  (subseq line 0 (1- (length line)))
+                                                  (read-line in)))
                           (incf *line-number*))
                 (ppcre:register-groups-bind (blank rest)
                     ("^( *)([^ ].*)$" line)
@@ -280,21 +290,6 @@
               ,sexp))
          `(cl-who:with-html-output-to-string (out nil :prologue ,doctype :indent t)
             ,sexp)))))
-
-
-(defun make-haml-fn (file)
-  (multiple-value-bind (haml->cl-who doctype)
-      (haml-file file)
-    (eval
-     `(lambda (params)
-        (declare (ignorable params))
-        (let ,(mapcar (lambda (sym)
-                        `(,sym (getf params ,(@sym->keyword sym))))
-                      (@symbols haml->cl-who))
-          (cl-who:with-html-output-to-string (out nil
-                                                  :prologue ,doctype
-                                                  :indent t)
-            ,haml->cl-who))))))
 
 (defun @symbols (lst)
   (remove-if-not

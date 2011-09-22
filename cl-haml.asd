@@ -4,12 +4,15 @@
 
 (defsystem cl-haml
   :serial t
+  :version "0.0.1"
   :author "Hiroyuki Tokunaga <inuzini.jiro@gmail.com>"
   :license "MIT License"
   :depends-on (:split-sequence :cl-ppcre :metatilities :cl-who :anaphora)
   :components ((:file "package")
                (:file "var")
                (:file "reader")
+               (:file "escape")
+               (:file "writer")
                (:file "execute")))
 
 (defmethod perform ((o test-op) (c (eql (find-system :cl-haml))))

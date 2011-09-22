@@ -15,7 +15,7 @@ Hamlとの違いは以下
 
 - Ruby ではなく Common Lispで動作
 - 埋め込みコードも Ruby ではなく Common Lisp
-- 出力HTMLのインデントが異なる (CL-WHO依存)
+- 出力HTMLのインデントが異なる (CL-WHO依存をちょっと改造)
 - 属性 {} の書き方が plistな感じ
 - 改行制御出来ません
 - 閉じタグ無し(要素名の末尾に/)が正しく処理されない
@@ -29,6 +29,7 @@ Hamlとの違いは以下
 他にもいっぱいあるはずだけど、作ってる人自身認識出来ていない。
 
 - ファイル先頭の !!! を無視 - 2011-08-31対応
+- インデントがちょっと 本家HAMLっぽくなったよ - 2011-09-22
 
 
 CL-HAMLを試す
@@ -37,10 +38,18 @@ CL-HAMLを試す
 また cl-who, split-sequence, cl-ppcre, metatilities に依存してるので、quicklispや clbuildで用意してください。もちろん tarを直接取ってきても構いません。
 全部 asdf が読んでくれる場所に置いて `(asdf:oos 'asdf:load-op :cl-haml)` とすれば load出来ると思います。
 
+render関数が hamlファイルを読み込み、評価した結果のHTMLを文字列として返します。
+render関数の第一引数は cl-haml-builderクラスのインスタンスで、最低限必須の設定として、load-rootに hamlファイルの置かれたディレクトリを指定します。
+第二引数に hamlファイルの名前を拡張子無しで指定。"hoge/example"のような指定で、ディレクトリ内のファイルも可能。ちなみに拡張子は `".haml"`という小文字固定です。
+第三引数には hamlファイル内で使う値の list。
+
 cl-hamlには サンプルな hamlファイルが入ってます。
 
-    CL-USER> (let ((@l nil))
-               (cl-haml:haml (merge-pathnames "example.haml" (asdf:system-source-directory :cl-haml))))
+    CL-USER> (asdf:oos 'asdf:load-op :cl-haml)
+    CL-USER> (use-package :cl-haml)
+    CL-USER> (let ((builder (make-instance 'cl-haml:cl-haml-builder
+                                           :load-root (asdf:system-source-directory :cl-haml))))
+               (cl-haml:render builder "example2" nil))
 
 
 作った人
