@@ -172,7 +172,8 @@
 (defun indent-diff (blank)
   (- (length *tag-stack*)
      (length *offset-stack*)
-     (indent-level blank)))
+     (indent-level blank)
+     1))
 
 (defun tag-p (node)
   (unless (atom node)
@@ -264,7 +265,7 @@
 
 
 (defun haml->sexp (stream)
-  (let* ((*tag-stack* nil)
+  (let* ((*tag-stack* (list (list 'cl-who:htm)))
          (*in-filter* nil)
          (*offset-stack* nil)
          (*line-number* 0))

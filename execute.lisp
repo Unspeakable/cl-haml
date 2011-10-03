@@ -7,6 +7,9 @@
           :initarg :views
           :initform nil
           :type list)
+   (package :accessor package
+            :initarg :package
+            :initform :cl-user)
    (reload-p :accessor reload-p
              :initarg :reload-p
              :initform t)
@@ -51,7 +54,8 @@
 
 (defun render-partial (view-selector))
 (defun make-view-function (builder selector)
-  (let ((haml-file (haml-file-path builder selector)))
+  (let ((haml-file (haml-file-path builder selector))
+        (*package* (find-package (package builder))))
     (ignore-errors
       (make-view
          :name (string selector)
