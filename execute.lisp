@@ -7,9 +7,9 @@
           :initarg :views
           :initform nil
           :type list)
-   (package :accessor package
-            :initarg :package
-            :initform :cl-user)
+   (func-package :accessor func-package
+                 :initarg :package
+                 :initform :cl-user)
    (reload-p :accessor reload-p
              :initarg :reload-p
              :initform t)
@@ -52,10 +52,10 @@
       (pushnew view (views builder) :key #'view-name :test #'equal))
     (funcall (view-function view) params)))
 
-(defun render-partial (view-selector))
+;(defun render-partial (view-selector))
 (defun make-view-function (builder selector)
   (let ((haml-file (haml-file-path builder selector))
-        (*package* (find-package (package builder))))
+        (*package* (find-package (func-package builder))))
     (ignore-errors
       (make-view
          :name (string selector)
@@ -78,23 +78,3 @@
                                                      :prologue ,doctype
                                                      :indent t)
                ,haml->cl-who)))))))
-
-;; (defstruct view-fn file-name timestamp lambda)
-
-;; (defun execute-haml (file params &key (package *package*))
-;;   (unless *haml-file-root*
-;;     (error "CL-HAML:*HAML-FILE-ROOT* is nil."))
-
-;;   (let ((it (gethash file *view-lambda-table*))
-;;         (timestamp (file-write-date
-;;                       (merge-pathnames file *haml-file-root*)))
-;;         (*package* (find-package package)))
-;;     (when (or (null it)
-;;               (< (view-fn-timestamp it) timestamp))
-;;       (setf (gethash file *view-lambda-table*)
-;;             (make-view-fn :file-name file
-;;                           :timestamp timestamp
-;;                           :lambda (let ((cl-who:*downcase-tokens-p* nil))
-;;                                     (make-haml-fn
-;;                                      (merge-pathnames file *haml-file-root*))))))
-;;     (funcall (view-fn-lambda (gethash file *view-lambda-table*)) params)))

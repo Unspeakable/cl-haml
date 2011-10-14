@@ -76,16 +76,14 @@
 ;;; ========================================
 ;;;
 (defun get-classes (classes attr)
-  (when classes
-    (string-trim *white-space-chars*
-      (apply #'concatenate
-         'string
-         (getf attr :class)
-         " "
-         (split-sequence:split-sequence
-            #\.
-            (subseq classes 1))
-         ))))
+  (string-trim *white-space-chars*
+    (apply #'concatenate
+       'string
+       (getf attr :|class|)
+       " "
+       (split-sequence:split-sequence
+          #\.
+          (subseq classes 1)))))
 
 ;;; ========================================
 ;;;
@@ -123,9 +121,9 @@
           (attr (get-attr attr))
           (body (get-body body)))
       (when id
-        (setf (getf attr :id) (get-id id)))
+        (setf (getf attr :|id|) (get-id id)))
       (when classes
-        (getf attr :class) (get-classes classes attr))
+        (setf (getf attr :|class|) (get-classes classes attr)))
       (cond (filter
               `(:filter ,(intern (subseq filter 1) :keyword)))
             (lisp-block
@@ -248,7 +246,8 @@
                                "\\"
                                (subseq line
                                        (* (- (length *tag-stack*)
-                                             (length *offset-stack*))
+                                             (length *offset-stack*)
+                                             1)
                                           2)))))
                         (set-tag (make-result rest)))))
           :if (start= "!!!" line)
