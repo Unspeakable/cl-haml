@@ -2,7 +2,7 @@
   (:use :cl :cl-test-more))
 (in-package :cl-haml-test)
 
-(plan 39)
+(plan 48)
 
 (progn
   (is (cl-haml::blank-string->nil "a") "a")
@@ -44,8 +44,18 @@
 (is ""     (cl-haml::get-id "#") :test #'equal)
 (is "main" (cl-haml::get-id "#main") :test #'equal)
 
-;; (test get-classes
-;;   )
+(progn
+  (is "" (cl-haml::get-classes nil nil) :test #'equal)
+  (is "" (cl-haml::get-classes "" nil) :test #'equal)
+  (is "" (cl-haml::get-classes nil '(:|class| "")) :test #'equal)
+  (is "" (cl-haml::get-classes nil '(:|other| "xxx")) :test #'equal)
+
+  (is "xxx" (cl-haml::get-classes ".xxx" nil) :test #'equal)
+  (is "xxx yyy" (cl-haml::get-classes ".xxx.yyy" nil) :test #'equal)
+
+  (is "zzz" (cl-haml::get-classes nil '(:|class| "zzz")) :test #'equal)
+  (is "zzz xxx" (cl-haml::get-classes ".xxx" '(:|class| "zzz")) :test #'equal)
+  (is "zzz xxx yyy" (cl-haml::get-classes ".xxx.yyy" '(:|class| "zzz")) :test #'equal))
 
 ;; (test get-body
 ;;   )

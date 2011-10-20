@@ -77,13 +77,10 @@
 ;;;
 (defun get-classes (classes attr)
   (string-trim *white-space-chars*
-    (apply #'concatenate
+    (concatenate
        'string
        (getf attr :|class|)
-       " "
-       (split-sequence:split-sequence
-          #\.
-          (subseq classes 1)))))
+       (substitute #\Space #\. classes))))
 
 ;;; ========================================
 ;;;
