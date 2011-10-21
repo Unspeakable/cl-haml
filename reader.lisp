@@ -76,11 +76,13 @@
 ;;; ========================================
 ;;;
 (defun get-classes (classes attr)
-  (string-trim *white-space-chars*
-    (concatenate
-       'string
-       (getf attr :|class|)
-       (substitute #\Space #\. classes))))
+  (let ((cls (getf attr :|class|)))
+    (if (or (stringp cls) (null cls) (zerop (length cls)))
+        (string-trim *white-space-chars*
+                     (concatenate 'string
+                                  cls
+                                  (substitute #\Space #\. classes)))
+        `(concatenate 'string ,cls ,(substitute #\Space #\. classes)))))
 
 ;;; ========================================
 ;;;
