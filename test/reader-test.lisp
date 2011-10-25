@@ -2,7 +2,7 @@
   (:use :cl :cl-test-more))
 (in-package :cl-haml-test)
 
-(plan 51)
+(plan 59)
 
 (progn
   (is (cl-haml::blank-string->nil "a") "a")
@@ -111,6 +111,16 @@
 (ok (cl-haml::start= "" "!!!"))
 (ok (not (cl-haml::start= "!!!" "!")))
 (ok (cl-haml::start= "!!!" "!!!"))
+
+(progn
+  (ok (cl-haml::skip-p ""))
+  (ok (cl-haml::skip-p "!!!"))
+  (ok (cl-haml::skip-p "!!! XML"))
+  (ok (cl-haml::skip-p "-# comment"))
+  (ok (cl-haml::skip-p "  -# comment"))
+  (ok (not (cl-haml::skip-p "%html")))
+  (ok (not (cl-haml::skip-p "  %head")))
+  (ok (not (cl-haml::skip-p "    :javascript"))))
 
 ;; (test parse
 ;;   )

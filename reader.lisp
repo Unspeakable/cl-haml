@@ -208,6 +208,10 @@
     (and (<= str1-len (length str2))
          (string= str1 str2 :end2 str1-len))))
 
+(defun skip-p (line)
+  (or (zerop (length (string-right-trim *white-space-chars* line)))
+      (start= "!!!" line)
+      (start= "-#" line)))
 
 ;;; ========================================
 ;;;
@@ -216,9 +220,7 @@
     (loop :for line := (read-line in nil +eof+)
           :do (incf *line-number*)
           :until (eq +eof+ line)
-          :unless (or (zerop (length (string-right-trim *white-space-chars* line)))
-                      (start= "!!!" line)
-                      (start= "-#" line))
+          :unless (skip-p line)
             :do (loop :while (char= (char line (1- (length line))) #\\)
                       :do (setf line (concatenate 'string
                                                   (subseq line 0 (1- (length line)))
@@ -269,6 +271,9 @@
          (*line-number* 0))
     (parse stream)))
 
+(defun haml-str (&rest strings)
+  (with-input-from-string (in (format nil "~{~A~%~}" strings))
+    (haml->sexp in)))
 
 (defun haml-file (path &key (external-format :utf-8))
   (with-open-file (in path
