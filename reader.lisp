@@ -211,7 +211,7 @@
 (defun skip-p (line)
   (or (zerop (length (string-right-trim *white-space-chars* line)))
       (start= "!!!" line)
-      (start= "-#" line)))
+      (ppcre:scan "^ *-#" line)))
 
 ;;; ========================================
 ;;;
