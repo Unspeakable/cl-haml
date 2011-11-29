@@ -57,10 +57,13 @@
   (is "zzz xxx" (cl-haml::get-classes ".xxx" '(:|class| "zzz")) :test #'equal)
   (is "zzz xxx yyy" (cl-haml::get-classes ".xxx.yyy" '(:|class| "zzz")) :test #'equal)
 
-  (is '(concatenate 'string (if t "aaa" "bbb") nil) (cl-haml::get-classes nil '(:|class| (if t "aaa" "bbb"))) :test #'equal)
-  (is "" (cl-haml::get-classes nil '(:|class| nil)) :test #'equal)
-  (is '(concatenate 'string (if t "aaa" "bbb") " xxx") (cl-haml::get-classes ".xxx" '(:|class| (if t "aaa" "bbb"))) :test #'equal)
-)
+  (is '(concatenate 'string (if t "aaa" "bbb") nil)
+      (cl-haml::get-classes nil '(:|class| (if t "aaa" "bbb"))) :test #'equal)
+  (is ""
+      (cl-haml::get-classes nil '(:|class| nil)) :test #'equal)
+  (is '(concatenate 'string (if t "aaa" "bbb") " xxx")
+      (cl-haml::get-classes ".xxx" '(:|class| (if t "aaa" "bbb"))) :test #'equal))
+
 
 ;; (test get-body
 ;;   )
