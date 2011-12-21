@@ -2,9 +2,10 @@
   (:use :cl :cl-test-more))
 (in-package :cl-haml-test)
 
-(plan 59)
+(plan 61)
 
 (progn
+  "blank-string->nil"
   (is (cl-haml::blank-string->nil "a") "a")
   (is (cl-haml::blank-string->nil " ") nil)
   (is (cl-haml::blank-string->nil "") nil)
@@ -39,10 +40,12 @@
   (is '(:|key| "value" :|key2| "value2")
       (cl-haml::get-attr "{:key \"value\" :key2 \"value2\"}") :test #'equal))
 
-(is nil    (cl-haml::get-id nil))
-(is nil    (cl-haml::get-id ""))
-(is ""     (cl-haml::get-id "#") :test #'equal)
-(is "main" (cl-haml::get-id "#main") :test #'equal)
+(progn
+  "get-id"
+  (is nil    (cl-haml::get-id nil))
+  (is nil    (cl-haml::get-id ""))
+  (is ""     (cl-haml::get-id "#") :test #'equal)
+  (is "main" (cl-haml::get-id "#main") :test #'equal))
 
 (progn
   (is "" (cl-haml::get-classes nil nil) :test #'equal)
@@ -89,23 +92,18 @@
 ;; (test indent-diff
 ;;   )
 
-;; (test get-id
-;;   )
-
 ;; (test tag-p
 ;;   )
 
 ;; (test set-tag
 ;;   )
 
-;; (test get-id
-;;   )
-
 ;; (test set-text
 ;;   )
 
-;; (test get-id
-;;   )
+(progn
+  (is (with-input-from-string (in "  ") (cl-haml::skip-whitespace in nil) (read-line in nil nil)) nil :test #'equal)
+  (is (with-input-from-string (in "  abc") (cl-haml::skip-whitespace in) (read-line in nil nil)) "abc" :test #'equal))
 
 (ok (not (cl-haml::start= "!" nil)))
 (ok (not (cl-haml::start= nil "!")))

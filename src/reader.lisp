@@ -97,34 +97,33 @@
     (values (car (last *tag-stack*))
             (format nil "~{~A~^~%~}" (nreverse doctypes)))))
 
+(defun skip-whitespace (&optional (stream *standard-input*) (eof-error-p t) eof-value)
+  (loop :for c := (peek-char nil stream eof-error-p eof-value)
+        :while (member c *white-space-chars* :test #'equal)
+        :until (equal c eof-value)
+        :do (read-char stream eof-error-p eof-value)))
+
 (defun |read-preserving| (&optional (stream *standard-input*)
                                     (eof-error-p t)
                                     eof-value)
-  (flet ((skip-whitespace ()
-           (loop :for c := (peek-char nil stream eof-error-p eof-value)
-              :while (member c
-                             *white-space-chars*
-                             :test #'equal)
-              :until (equal c eof-value)
-              :do (read-char stream eof-error-p eof-value))))
-    (skip-whitespace)
-    (let* ((str? (equal (peek-char nil stream eof-error-p eof-value) #\"))
-           (result
-            (loop :for c := (read-char stream eof-error-p eof-value)
-               :for i := 0 :then (1+ i)
-               :until (equal c eof-value)
-               :until (if str?
-                          (and (not (zerop i)) (char= c #\"))
-                          (member c *white-space-chars* :test #'equal))
-               :finally (unless (or (equal c eof-value)
-                                    (and str? (equal c #\")))
-                          (unread-char c stream))
-               :collect c)))
-      (cond ((null result) eof-value)
-            (str? (coerce (cdr result) 'string))
-            ((char= #\: (car result))
-             (intern (coerce (cdr result) 'string) :keyword))
-            (t (intern (coerce result 'string)))))))
+  (skip-whitespace stream eof-error-p eof-value)
+  (let* ((str? (equal (peek-char nil stream eof-error-p eof-value) #\"))
+         (result
+           (loop :for c := (read-char stream eof-error-p eof-value)
+                 :for i := 0 :then (1+ i)
+                 :until (equal c eof-value)
+                 :until (if str?
+                            (and (not (zerop i)) (char= c #\"))
+                            (member c *white-space-chars* :test #'equal))
+                 :finally (unless (or (equal c eof-value)
+                                      (and str? (equal c #\")))
+                            (unread-char c stream))
+                 :collect c)))
+    (cond ((null result) eof-value)
+          (str? (coerce (cdr result) 'string))
+          ((char= #\: (car result))
+           (intern (coerce (cdr result) 'string) :keyword))
+          (t (intern (coerce result 'string))))))
 
 ;;; ========================================
 ;;;

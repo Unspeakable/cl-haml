@@ -23,4 +23,5 @@
            #:set-doctype
            #:stylesheet-link-tag
            #:javascript-include-tag
-           #:link-to))
+           #:link-to
+           #:post-to))
