@@ -25,10 +25,10 @@
           (if cache-p "" "?")
           (if cache-p "" (random most-positive-fixnum))))
 
-(defun link-to (text uri)
-  (format nil "<a href='~A'>~A</a>" uri text))
-
-(defun post-to (text uri &key (method "post"))
-  (format nil
-          "<form action='~A' method='~A'><button>~A</button></form>"
-          uri method text))
+(defun link-to (text &key url (ctrl *current-controller*)
+                              (act *current-action*)
+                              id)
+  (if url
+      (format nil "<a href='~A'>~A</a>" url text)
+      (format nil "<a href='/~A/~A~A'>~A</a>"
+              ctrl act (if id (format nil "/~A" id) "") text)))

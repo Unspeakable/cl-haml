@@ -1,132 +1,31 @@
-(defpackage :cl-haml-test
-  (:use :cl :cl-test-more))
-(in-package :cl-haml-test)
+;(cl:in-package :cl-haml-test)
+(cl:in-package :cl-haml)
 
-(plan 61)
+(setf *function-package* :cl-haml)
 
-(progn
-  "blank-string->nil"
-  (is (cl-haml::blank-string->nil "a") "a")
-  (is (cl-haml::blank-string->nil " ") nil)
-  (is (cl-haml::blank-string->nil "") nil)
-  (is (cl-haml::blank-string->nil nil) nil))
+(cl-test-more:deftest haml-reader-dispatch
+  (macrolet ((is (input-string type result)
+               (let ((var (gensym)))
+                 `(with-input-from-string (,var ,input-string)
+                    (cl-test-more:is
+                       (let ((*package* (find-package *function-package*)))
+                         (haml-reader-dispatch ,type ,var))
+                       ,result
+                       :test #'equal)))))
+    (is "%html" +haml+ '(+haml+ (:|html|)))
+    (is "%head#id1.class1" +haml+ '(+haml+ (:|head| :|class| "class1" :|id| "id1")))
+    (is "%meta{:charset \"utf-8\"}" +haml+ '(+haml+ (:|meta| :|charset| "utf-8")))
+    (is "%meta{:http-equiv \"content-type\" :content \"text/html\"}" +haml+
+        '(+haml+ (:|meta| :|http-equiv| "content-type" :|content| "text/html")))
+    (is "%title Hello, world" +haml+ '(+haml+ (:|title| "Hello, world")))
+    (is "%body.class1.class2{:class \"class3\"}" +haml+
+        '(+haml+ (:|body| :|class| "class1 class2 class3")))
+    (is "%h1#id2{:id \"id-x\"}" +haml+ '(+haml+ (:|h1| :|id| "id2")))
+    (is "%p{:id \"id-x\"}= (format nil \"Hello, World\")" +haml+
+        '(+haml+ (:|p| :|id| "id-x"
+                  (cl-who:str (format nil "Hello, World")))))
+    (is "- dotimes (i 10)" +haml+ '(+lisp+ (dotimes (i 10))))
+    (is "= (random 10)" +haml+ '(+haml+ (cl-who:str (random 10))))))
 
-(progn
-  (is nil     (cl-haml::get-tag nil nil nil))
-  (is nil     (cl-haml::get-tag nil "" nil))
-  (is nil     (cl-haml::get-tag nil nil ""))
-  (is nil     (cl-haml::get-tag nil "" ""))
-  (is :|div|  (cl-haml::get-tag nil "id" nil))
-  (is :|div|  (cl-haml::get-tag nil nil "class"))
-  (is :|div|  (cl-haml::get-tag nil "id" "class"))
-  (is :|div|  (cl-haml::get-tag "%" nil nil))
-  (is :|div|  (cl-haml::get-tag "%" "id" nil))
-  (is :|div|  (cl-haml::get-tag "%" nil "class"))
-  (is :|div|  (cl-haml::get-tag "%" "id" "class"))
-  (is :|body| (cl-haml::get-tag "%body" nil nil))
-  (is :|body| (cl-haml::get-tag "%body" "id" nil))
-  (is :|body| (cl-haml::get-tag "%body" nil "class"))
-  (is :|body| (cl-haml::get-tag "%body" "id" "class"))
-  (is :|Body| (cl-haml::get-tag "%Body" nil nil))
-  (is :body   (cl-haml::get-tag "%BODY" nil nil)))
-
-(progn
-  (is nil (cl-haml::get-attr nil))
-  (is nil (cl-haml::get-attr ""))
-  (is nil (cl-haml::get-attr "a"))
-  (is nil (cl-haml::get-attr "az"))
-  (is '(:|key| "value") (cl-haml::get-attr "{:key \"value\"}") :test #'equal)
-  (is '(:key "value") (cl-haml::get-attr "{:KEY \"value\"}") :test #'equal)
-  (is '(:|key| "value" :|key2| "value2")
-      (cl-haml::get-attr "{:key \"value\" :key2 \"value2\"}") :test #'equal))
-
-(progn
-  "get-id"
-  (is nil    (cl-haml::get-id nil))
-  (is nil    (cl-haml::get-id ""))
-  (is ""     (cl-haml::get-id "#") :test #'equal)
-  (is "main" (cl-haml::get-id "#main") :test #'equal))
-
-(progn
-  (is "" (cl-haml::get-classes nil nil) :test #'equal)
-  (is "" (cl-haml::get-classes "" nil) :test #'equal)
-  (is "" (cl-haml::get-classes nil '(:|class| "")) :test #'equal)
-  (is "" (cl-haml::get-classes nil '(:|other| "xxx")) :test #'equal)
-
-  (is "xxx" (cl-haml::get-classes ".xxx" nil) :test #'equal)
-  (is "xxx yyy" (cl-haml::get-classes ".xxx.yyy" nil) :test #'equal)
-
-  (is "zzz" (cl-haml::get-classes nil '(:|class| "zzz")) :test #'equal)
-  (is "zzz xxx" (cl-haml::get-classes ".xxx" '(:|class| "zzz")) :test #'equal)
-  (is "zzz xxx yyy" (cl-haml::get-classes ".xxx.yyy" '(:|class| "zzz")) :test #'equal)
-
-  (is '(concatenate 'string (if t "aaa" "bbb") nil)
-      (cl-haml::get-classes nil '(:|class| (if t "aaa" "bbb"))) :test #'equal)
-  (is ""
-      (cl-haml::get-classes nil '(:|class| nil)) :test #'equal)
-  (is '(concatenate 'string (if t "aaa" "bbb") " xxx")
-      (cl-haml::get-classes ".xxx" '(:|class| (if t "aaa" "bbb"))) :test #'equal))
-
-
-;; (test get-body
-;;   )
-
-;; (test read-concat
-;;   )
-
-;; (test gen-standard-result
-;;   )
-
-;; (test split-line
-;;   )
-
-;; (test make-result
-;;   )
-
-;; (test make-filter-result
-;;   )
-
-;; (test indent-level
-;;   )
-
-;; (test indent-diff
-;;   )
-
-;; (test tag-p
-;;   )
-
-;; (test set-tag
-;;   )
-
-;; (test set-text
-;;   )
-
-(progn
-  (is (with-input-from-string (in "  ") (cl-haml::skip-whitespace in nil) (read-line in nil nil)) nil :test #'equal)
-  (is (with-input-from-string (in "  abc") (cl-haml::skip-whitespace in) (read-line in nil nil)) "abc" :test #'equal))
-
-(ok (not (cl-haml::start= "!" nil)))
-(ok (not (cl-haml::start= nil "!")))
-(ok (not (cl-haml::start= nil nil)))
-(ok (cl-haml::start= "!!!" "!!! rest"))
-(ok (cl-haml::start= "" "!!!"))
-(ok (not (cl-haml::start= "!!!" "!")))
-(ok (cl-haml::start= "!!!" "!!!"))
-
-(progn
-  (ok (cl-haml::skip-p ""))
-  (ok (cl-haml::skip-p "!!!"))
-  (ok (cl-haml::skip-p "!!! XML"))
-  (ok (cl-haml::skip-p "-# comment"))
-  (ok (cl-haml::skip-p "  -# comment"))
-  (ok (not (cl-haml::skip-p "%html")))
-  (ok (not (cl-haml::skip-p "  %head")))
-  (ok (not (cl-haml::skip-p "    :javascript"))))
-
-;; (test parse
-;;   )
-
-;; (test html->sexp
-;;   )
-
-(finalize)
+(cl-test-more:run-test-all)
+(cl-test-more:finalize)

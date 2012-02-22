@@ -1,0 +1,48 @@
+!!! 5
+%html
+  %head
+    %meta{:charset "utf-8"}/
+    %title Test File
+    :javascript
+      function testJavaScriptFunction(arg) {
+        if(arg) {
+          document.getElementById("id1").innerHTML = arg;
+        }
+      }
+    :css
+      body { background-color: #ccc; color: #333; }
+      h1 { background-color: #aaa; color: #000; }
+  %body
+    %header
+      %h1#id1.class1.class2{:class "class3"} This is Test!
+
+    %article#main
+      %h2= (format nil "~{~A~^, ~}" '(hello world))
+      %table{:border "1"}
+        %tr
+          %th /
+          - dotimes (i 9)
+            %th= (1+ i)
+        - dotimes (i 9)
+          %tr
+            %th= (1+ i)
+            - dotimes (j 9)
+              %td= (* (1+ i) (1+ j))
+
+    %footer
+      %p
+        Multiple line 1.
+        Multiple line 2.
+        Multiple line 3.
+      %p
+        - let (var)
+          - setf var 10
+          = (incf var)
+          = (incf var)
+          = (incf var)
+      - dotimes (i 10)
+        - cond
+          - (oddp i)
+            %p !!!
+          - t
+            %p ???
