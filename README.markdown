@@ -2,18 +2,18 @@
 
 ## What is CL-HAML?
 
-[Haml](http://haml-lang.com/ "Haml")���̋L�@������ Common Lisp�pHTML�W�F�l���[�^�ł��B�C���f���g��ȗ��\���ɂ���ĊȌ��ȋL�q���s���܂��B
+[Haml](http://haml-lang.com/ "Haml")風の記法を持つ Common Lisp用HTMLジェネレータです。インデントや簡略構文によって簡潔な記述が行えます。
 
-Common Lisp�ɂ́AS����HTML�ɕϊ����郉�C�u�������L�x�ɑ��݂��܂����A���̑��̕����̃��C�u�����͂��܂芈���ł͂Ȃ��̂ł́H�Ɗ����܂����BS���͐l�ނ̔��������ł��D�ꂽ�L�q���@�ł����A�c�O�Ȃ���f�U�C�i�ɂ͏��X�~���������悤�ł�(�f�U�C�i�� Emacs���g�p���Ȃ��̂�)�B�Ȃ̂ŁACL-HAML�����܂���! CL-HAML�́A�f�U�C�i�ɂ� Lisper�ɂ� �����ɂ����C�͂��܂��B�ł��A�{��Haml��������f�U�C�i������̂ő��v�ł��A�����ƁB
+Common Lispには、S式をHTMLに変換するライブラリが豊富に存在しますが、その他の方式のライブラリはあまり活発ではないのでは？と感じました。S式は人類の発明した最も優れた記述方法ですが、残念ながらデザイナには少々敷居が高いようです(デザイナは Emacsを使用しないので)。なので、CL-HAMLを作りました! CL-HAMLは、デザイナにも Lisperにも 書きにくい気はします。でも、本家Hamlが書けるデザイナがいるので大丈夫です、きっと。
 
-���ӁF��ϐ\���󂠂�܂��񂪁A�܂��܂������ɂ͒������A�G���[���b�Z�[�W���s�e�؂�������A�����o�O���c���Ă����肵�܂��B
+注意：大変申し訳ありませんが、まだまだ完成には程遠く、エラーメッセージが不親切だったり、酷いバグが残っていたりします。
 
-����ł������Ă�����������A�o�O�̘A���� ���P�̒�Ă�����������Ɗ������ł��B
+それでも試していただける方、バグの連絡や 改善の提案をいただけると嬉しいです。
 
 ## Install
 
-���݁ACL-HAML�� QuickLisp�ɑΉ����Ă��܂���B
-[github�̃��|�W�g��](https://github.com/Unspeakable/cl-haml)����擾���Ă��������B
+現在、CL-HAMLは QuickLispに対応していません。
+[githubのリポジトリ](https://github.com/Unspeakable/cl-haml)から取得してください。
 
 ## Execute
 
