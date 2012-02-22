@@ -1,18 +1,26 @@
-!!! XML
 !!! 5
 %html
   %head
     %meta{:charset "utf-8"}
-    %title Hello, world
+    %title= (format nil "Hello, ~Dth" (random 10))
+    :javascript
+      function hoge(x) {
+        aleat(x);
+        aleat(x);
+        aleat(x);
+      }
+    :css
+      body {background-color: #000;}
   %body
-    %h1 (format t "Hello, world!")
-    %table{:border 1}
+    %h1 Hello, World
+
+    %table{:border "1"}
       %tr
-        %th .
-        - loop for i from 1 to 9 do
-          %th= i
-      - loop for i from 1 to 9 do
+        %th /
+        - dotimes (i 9)
+          %th= (1+ i)
+      - dotimes (i 9)
         %tr
-          %th= i
-          - loop for j from 1 to 9 do
+          %th= (1+ i)
+          - dotimes (j 9)
             %td= (* i j)
