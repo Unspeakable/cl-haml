@@ -11,6 +11,9 @@
            #:execute-haml
            #:register-haml
 
+           #:.id
+           #:.class
+
            #:clear-haml-all
            #:clear-haml
            #:clear-haml-all-files))

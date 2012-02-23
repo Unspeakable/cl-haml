@@ -1,5 +1,11 @@
 (in-package :cl-haml)
 
+(defun .id (&rest args)
+  (format nil "~{~A~^_~}" args))
+
+(defun .class (&rest args)
+  (format nil "~{~A~^ ~}" args))
+
 (defun flatten (list)
   "tree -> flat list."
   (cond ((atom list) list)

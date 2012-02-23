@@ -121,9 +121,16 @@ But Ignore `self-closing', `inside-whitespace-remove' and
          (read-content stream eof-error-p eof-value))))
 
 (defun add-id (id attr-list)
-  (let ((attr-list (copy-list attr-list)))
+  (let* ((attr-list (copy-list attr-list))
+         (target-id (getf attr-list :|id|)))
     (when id
-      (setf (getf attr-list :|id|) id))
+      (setf (getf attr-list :|id|)
+            (if target-id
+                (if (and (listp target-id)
+                         (eq '.id (car target-id)))
+                    `(.id ,id ,@(cdr target-id))
+                    `(.id ,id ,target-id))
+                id)))
     attr-list))
 
 (defun add-class (class attr-list)
@@ -131,12 +138,11 @@ But Ignore `self-closing', `inside-whitespace-remove' and
     (when class
       (setf (getf attr-list :|class|)
             (let ((it (getf attr-list :|class|)))
-              (cond ((stringp it)
-                       (concatenate 'string class " " it))
-                    ((null it)
-                       class)
+              (cond ((null it) class)
+                    ((and (listp it) (eq '.class (car it)))
+                       `(.class ,class ,@(cdr it)))
                     (t
-                       `(concatenate 'string ,class " " ,it))))))
+                       `(.class ,class ,it))))))
     attr-list))
 
 (defun read-haml-element-line (stream &optional (eof-error-p nil)
