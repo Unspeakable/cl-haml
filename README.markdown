@@ -19,8 +19,7 @@ Common Lispには、S式をHTMLに変換するライブラリが豊富に存在�
 
     CL-USER> (ASDF:LOAD-SYSTEM :CL-HAML)
     CL-USER> (CL-HAML:EXECUTE-HAML (MERGE-PATHNAMES
-                                      "test/test-haml/test-02.haml"
+                                      "examples/example2.haml"
                                       (ASDF:SYSTEM-SOURCE-DIRECTORY :CL-HAML))
-                                   '(:NAME "INUZINI-JIRO"
-                                     :AGE  28))
+                                   '(:ARG "Hello!"))
 

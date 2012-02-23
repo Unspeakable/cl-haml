@@ -137,15 +137,15 @@ Rebuilds it when text template was a file which has been modified."
                                 (get-universal-time)
                                 function)))))
 
-(defgeneric execute-haml (name &key env)
-  (:documentation "Execute named CL-HAML code. Returns a string. Keyword parameter
+(defgeneric execute-haml (name &optional env)
+  (:documentation "Execute named CL-HAML code. Returns a string. Optional parameter
 $var{ENV} to pass objects to the code. $var{ENV} must be a plist."))
 
-(defmethod execute-haml ((name string) &key env)
+(defmethod execute-haml ((name string) &optional env)
   (funcall (get-haml-function name)
            env))
 
-(defmethod execute-haml ((name pathname) &key env)
+(defmethod execute-haml ((name pathname) &optional env)
   (funcall (or (get-haml-function name)
                (haml-function-function (register-haml name name)))
            env))
