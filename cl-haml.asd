@@ -5,7 +5,8 @@
 
 (defsystem cl-haml
   :serial t
-  :version "0.9.0"
+  :description "Haml like XHTML generator."
+  :version "0.9.1"
   :author "Hiroyuki Tokunaga <inuzini.jiro@gmail.com>"
   :license "MIT License"
   :depends-on (:cl-who)

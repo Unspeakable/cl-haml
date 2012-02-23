@@ -1,4 +1,3 @@
-;(cl:in-package :cl-haml-test)
 (cl:in-package :cl-haml)
 
 (setf *function-package* :cl-haml)
@@ -25,7 +24,11 @@
         '(+haml+ (:|p| :|id| "id-x"
                   (cl-who:str (format nil "Hello, World")))))
     (is "- dotimes (i 10)" +haml+ '(+lisp+ (dotimes (i 10))))
-    (is "= (random 10)" +haml+ '(+haml+ (cl-who:str (random 10))))))
+    (is "= (random 10)" +haml+ '(+haml+ (cl-who:str (random 10))))
+
+    (is "hello" +haml+ '(:text "hello"))
+    (is "hello" +lisp+ '(:text (cl-who:htm "hello")))))
 
 (cl-test-more:run-test-all)
+
 (cl-test-more:finalize)

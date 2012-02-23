@@ -1,9 +1,5 @@
 (in-package :cl-haml)
 
-(defvar *whitespace-chars*
-  '(#\Space #\Return #\LineFeed #\Tab #\Page))
-
-
 (defun haml-reader-dispatch (parent-type
                              stream
                              &optional (eof-error-p nil)
@@ -45,7 +41,7 @@
               (if (and (not (eql eof-value line))
                        (char= #\\ (char line 0)))
                   (setf line (subseq line 1)))
-              `(:text ,line)))))))
+              `(:text ,(if (eq parent-type +lisp+) `(cl-who:htm ,line) line))))))))
 
 
 (defun eol-or-eof-p (char eof-value)
