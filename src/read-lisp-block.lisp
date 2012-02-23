@@ -10,5 +10,5 @@
   (let ((line (read-line stream nil eof-value)))
     (list (if (or (eq line eof-value)
                   (zerop (length (string-trim *whitespace-chars* line))))
-              +haml-multiple-commen+
+              +haml-multiple-comment+
               +haml-line-comment+))))

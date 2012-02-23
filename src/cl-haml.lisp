@@ -90,7 +90,7 @@ Must accept a function designater which must be called with the lock hold.")
   (with-lock
     (maphash (lambda (key value)
                (declare (ignore value))
-               (when (type key 'pathname)
+               (when (typep key 'pathname)
                  (remhash key *functions*)))
              *functions*)))
 

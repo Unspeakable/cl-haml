@@ -19,8 +19,8 @@
         '(+haml+ (:|meta| :|http-equiv| "content-type" :|content| "text/html")))
     (is "%title Hello, world" +haml+ '(+haml+ (:|title| "Hello, world")))
     (is "%body.class1.class2{:class \"class3\"}" +haml+
-        '(+haml+ (:|body| :|class| "class1 class2 class3")))
-    (is "%h1#id2{:id \"id-x\"}" +haml+ '(+haml+ (:|h1| :|id| "id2")))
+        '(+haml+ (:|body| :|class| (.class "class1 class2" "class3"))))
+    (is "%h1#id2{:id \"id-x\"}" +haml+ '(+haml+ (:|h1| :|id| (.id "id2" "id-x"))))
     (is "%p{:id \"id-x\"}= (format nil \"Hello, World\")" +haml+
         '(+haml+ (:|p| :|id| "id-x"
                   (cl-who:str (format nil "Hello, World")))))

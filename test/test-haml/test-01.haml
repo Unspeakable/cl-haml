@@ -16,6 +16,11 @@
     %header
       %h1#id1.class1.class2{:class "class3"} This is Test!
 
+    -#
+      %div#id.class1.class2 Comment!
+      % Comment?
+      % Comment...
+
     %article#main
       %h2= (format nil "~{~A~^, ~}" '(hello world))
       %table{:border "1"}
@@ -29,6 +34,7 @@
             - dotimes (j 9)
               %td= (* (1+ i) (1+ j))
 
+    -# Comment!
     %footer
       %p
         Multiple line 1.

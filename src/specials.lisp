@@ -9,7 +9,7 @@
 (defconstant +lisp+   '+lisp+)
 (defconstant +haml+   '+haml+)
 (defconstant +haml-multiple-comment+ '+haml-multiple-comment+)
-(defconstant +haml-line-comment      '+haml-line-comment+)
+(defconstant +haml-line-comment+     '+haml-line-comment+)
 
 (defconstant +eof+ 'eof)
 

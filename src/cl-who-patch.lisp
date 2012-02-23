@@ -1,7 +1,7 @@
 (in-package :cl-who)
 
 (defmethod convert-tag-to-string-list (tag attr-list body body-fn)
-  (declare (optimize speed space))
+  ;; (declare (optimize speed space))
   (let ((tag (string tag)))
     (nconc (when *indent*
              (list +newline+ (n-spaces *indent*)))

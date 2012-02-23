@@ -40,7 +40,7 @@
                                 (char= char #\:))
                       do (write-char (read-char stream) out)))
               :keyword)
-      (error "Type Error: Attribute key. [~S]" (read in))))
+      (error "Type Error: Attribute key. [~S]" (read stream))))
 
 
 (defun read-attributes (stream &optional (eof-error-p nil)
