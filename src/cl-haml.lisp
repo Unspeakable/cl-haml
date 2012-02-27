@@ -8,7 +8,8 @@
                                      :test #'string-equal)))))
 
 (defun read-haml (stream)
-  (let ((*package* (find-package *function-package*)))
+  (let ((*package* (or (find-package *function-package*)
+                       (error "Package not Found: ~S" *function-package*))))
     (values (read-doctype stream)                  ; Read DOCTYPE(^!!! ?.*$)
             (multiple-value-bind (_1 result _2)    ; Read Haml Body
                 (read-haml-body stream 0 +haml+)

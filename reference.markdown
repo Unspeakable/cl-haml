@@ -347,16 +347,6 @@ HTMLには出力されない、CL-HAML上だけのコメントも存在する:
       2?
     </p>
 
-BUG: 以下のコードが正しく動作しない気がする
-
-    - case 2
-      - 1
-        1!
-      - 2
-        2?
-      - 3
-        3.
-
 #### Whitespace Preservation: ~
 
 未実装
@@ -407,7 +397,6 @@ BUG: 以下のコードが正しく動作しない気がする
         alert("Hello, " + arg);
         }
       </script>
-
     </p>
 
 * :javascript

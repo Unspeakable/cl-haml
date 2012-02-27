@@ -47,8 +47,9 @@
 (defun eol-or-eof-p (char eof-value)
   (or (eq eof-value char) (char= #\Newline char)))
 
-(defun read-haml-line (parent-type stream &optional (eof-error-p nil)
-                                                    (eof-value +eof+))
+(defun read-haml-line (parent-type stream indent
+                       &optional (eof-error-p nil)
+                                 (eof-value +eof+))
   (list
    ;; Parsed content. (type &optional content)
    (haml-reader-dispatch parent-type
@@ -79,7 +80,8 @@
 (defun read-haml-body (stream indent parent-type)
   ""
   (loop :for ((type content) next-indent eof?)
-          := (read-haml-line parent-type stream)
+          :=    (read-haml-line parent-type stream indent)
+          :then (read-haml-line parent-type stream next-indent)
         :for set-point := (get-insert-point type content)
         :collect content :into contents
         :if (and (not (eql +haml-multiple-comment+ parent-type))
