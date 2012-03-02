@@ -12,6 +12,7 @@
        `(,parent-type ,(read-line stream eof-error-p eof-value)))
     ((+haml+ +lisp+)
        (case (peek-char nil stream eof-error-p eof-value)
+         ;; HTML Element
          ((#\% #\# #\.)
             (let ((result (read-haml-element-line stream
                                                   eof-error-p
@@ -19,6 +20,7 @@
               (when (eq parent-type +lisp+)
                 (setf (cadr result) `(cl-who:htm ,(cadr result))))
               result))
+         ;; Insert haml code
          ((#\! #\& #\=)
             (let ((result (read-haml-insert-line stream
                                                  eof-error-p
@@ -26,6 +28,7 @@
               (when (eq parent-type +lisp+)
                 (setf (cadr result) `(cl-who:htm ,(cadr result))))
               result))
+         ;; Lisp code block or Haml comment
          ((#\-)
             (read-char stream)
             (case (peek-char nil stream eof-error-p eof-value)
@@ -34,8 +37,10 @@
                  (read-haml-comment stream eof-value))
               (#\Space      ; Haml Lisp Block
                  (read-haml-lisp-block stream))))
+         ;; Filter
          ((#\:)
             `(+filter+ ,(read-filter-line stream)))
+         ;; Other
          (t
             (let ((line (read-line stream eof-error-p eof-value)))
               (if (and (not (eql eof-value line))

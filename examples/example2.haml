@@ -11,6 +11,11 @@
       }
     :css
       body {background-color: #000;}
+      th { background-color: #fcc;}
+      td {
+        text-align: right;
+        margin: 5px;
+      }
   %body
     %h1 Hello, World
 
@@ -23,6 +28,6 @@
         %tr
           %th= (1+ i)
           - dotimes (j 9)
-            %td= (* i j)
+            %td= (* (1+ i) (1+ j))
 
     %div= (or $argument "No Value")

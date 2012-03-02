@@ -12,8 +12,13 @@ Common Lispには、S式をHTMLに変換するライブラリが豊富に存在�
 
 ## Install
 
-現在、CL-HAMLは QuickLispに対応していません。
-[githubのリポジトリ](https://github.com/Unspeakable/cl-haml)から取得してください。
+CL-HAML is available on [QuickLisp](http://www.quicklisp.org/beta/).
+
+    (ql:quickload :cl-haml)
+
+or git clone from Github.
+
+    git clone https://github.com/Unspeakable/cl-haml.git
 
 ## Execute
 
@@ -21,5 +26,4 @@ Common Lispには、S式をHTMLに変換するライブラリが豊富に存在�
     CL-USER> (CL-HAML:EXECUTE-HAML (MERGE-PATHNAMES
                                       "examples/example2.haml"
                                       (ASDF:SYSTEM-SOURCE-DIRECTORY :CL-HAML))
-                                   :ENV '(:ARG "Hello!"))
-
+                                   :ENV '(:ARGUMENT "Hello!"))
