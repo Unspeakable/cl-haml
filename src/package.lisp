@@ -7,6 +7,7 @@
            #:*html-mode*
            #:*escape-html*
            #:*doctypes*
+           #:*output-indent-p*
 
            #:execute-haml
            #:register-haml

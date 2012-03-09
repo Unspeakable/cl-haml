@@ -29,8 +29,7 @@
 (defsystem cl-haml-test
   :components ((:module "test"
                 :serial t
-                :components ((:file "package")
-                             (:file "reader-test")
+                :components ((:file "reader-test")
                              (:file "cl-haml-test"))))
   :depends-on (:cl-haml :cl-test-more))
 

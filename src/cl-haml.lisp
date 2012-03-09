@@ -8,13 +8,15 @@
                   :collect (cdr (assoc (read-line in)
                                        (cdr (assoc *html-mode* *doctypes*))
                                        :test #'string-equal)) :into result
+                
                 :else
                   :do (read-char in)
                       (if (eql #1# #\#)
                           (read-line in)
                           (progn
                             (unread-char #\- in)
-                            (return result))))))
+                            (loop-finish)))
+                :finally (return result))))
 
 (defun read-haml (stream)
   (let ((*package* (or (find-package *function-package*)
@@ -36,18 +38,19 @@
 (defun make-haml-fn (stream)
   (multiple-value-bind (doctype body)
       (read-haml stream)
-    (let ((args (haml-fn-args body)))
+    (let ((args (haml-fn-args body))
+          (env  (intern (string :env) *function-package*)))
       (compile nil
-               `(lambda (env)
-                  (declare (ignorable env))
+               `(lambda (,env)
+                  (declare (ignorable ,env))
                   (let (,@(mapcar (lambda (arg)
-                                    `(,arg (getf env
+                                    `(,arg (getf ,env
                                                  (intern (subseq (string ',arg) 1)
                                                          :keyword))))
                                   args))
                     (cl-who:with-html-output-to-string (out
                                                         nil
-                                                        :indent 0
+                                                        :indent ,*output-indent-p*
                                                         :prologue ,doctype)
                       ,@body)))))))
 

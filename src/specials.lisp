@@ -5,6 +5,8 @@
   `(cl:defconstant ,name (if (boundp ',name) (symbol-value ',name) ,value)
      ,@(when doc (list doc))))
 
+(defvar *output-indent-p* t)
+
 (defvar *whitespace-chars*
   '(#\Space #\Return #\LineFeed #\Tab #\Page))
 

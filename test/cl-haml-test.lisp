@@ -22,6 +22,6 @@
                 while (and line-1 line-2)
                 do (is line-1 line-2 :test #'equal)))))))
 
-(run-test-all)
+(run-test 'execute-haml)
 
 (finalize)

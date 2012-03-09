@@ -29,6 +29,6 @@
     (is "hello" +haml+ '(:text "hello"))
     (is "hello" +lisp+ '(:text (cl-who:htm "hello")))))
 
-(cl-test-more:run-test-all)
+(cl-test-more:run-test 'haml-reader-dispatch)
 
 (cl-test-more:finalize)
