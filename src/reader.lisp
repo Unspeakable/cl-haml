@@ -18,7 +18,7 @@
                                                   eof-error-p
                                                   eof-value)))
               (when (eq parent-type +lisp+)
-                (setf (cadr result) `(cl-who:htm ,(cadr result))))
+                (setf (cadr result) `(htm ,(cadr result))))
               result))
          ;; Insert haml code
          ((#\! #\& #\=)
@@ -26,7 +26,7 @@
                                                  eof-error-p
                                                  eof-value)))
               (when (eq parent-type +lisp+)
-                (setf (cadr result) `(cl-who:htm ,(cadr result))))
+                (setf (cadr result) `(htm ,(cadr result))))
               result))
          ;; Lisp code block or Haml comment
          ((#\-)
@@ -46,7 +46,7 @@
               (if (and (not (eql eof-value line))
                        (char= #\\ (char line 0)))
                   (setf line (subseq line 1)))
-              `(:text ,(if (eq parent-type +lisp+) `(cl-who:htm ,line) line))))))))
+              `(:text ,(if (eq parent-type +lisp+) `(htm ,line) line))))))))
 
 
 (defun eol-or-eof-p (char eof-value)

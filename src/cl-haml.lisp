@@ -2,21 +2,21 @@
 
 (defun read-doctype (in)
   (format nil "~{~A~^~%~}"
-          (loop :for c := #1=(peek-char nil in nil +eof+)
-                :while (or (eql c #\!) (and (eql c #\-)))
-                :if (eql c #\!)
-                  :collect (cdr (assoc (read-line in)
+          (loop for c = #1=(peek-char nil in nil +eof+)
+                while (or (eql c #\!) (and (eql c #\-)))
+                if (eql c #\!)
+                  collect (cdr (assoc (read-line in)
                                        (cdr (assoc *html-mode* *doctypes*))
                                        :test #'string-equal)) :into result
                 
-                :else
-                  :do (read-char in)
+                else
+                  do (read-char in)
                       (if (eql #1# #\#)
                           (read-line in)
                           (progn
                             (unread-char #\- in)
                             (loop-finish)))
-                :finally (return result))))
+                finally (return result))))
 
 (defun read-haml (stream)
   (let ((*package* (or (find-package *function-package*)
@@ -29,11 +29,12 @@
 
 (defun haml-fn-args (sexp)
   (delete-duplicates
-   (delete nil (mapcar (lambda (x)
-                         (and (symbolp x)
-                              (char= #\$ (char (string x) 0))
-                              x))
-                       (flatten sexp)))))
+   (delete nil
+           (mapcar (lambda (x)
+                     (and (symbolp x)
+                          (char= #\$ (char (string x) 0))
+                          x))
+                   (flatten sexp)))))
 
 (defun make-haml-fn (stream)
   (multiple-value-bind (doctype body)
@@ -48,10 +49,10 @@
                                                  (intern (subseq (string ',arg) 1)
                                                          :keyword))))
                                   args))
-                    (cl-who:with-html-output-to-string (out
-                                                        nil
-                                                        :indent ,*output-indent-p*
-                                                        :prologue ,doctype)
+                    (with-html-output-to-string (out
+                                                 nil
+                                                 :indent ,*output-indent-p*
+                                                 :prologue ,doctype)
                       ,@body)))))))
 
 ;;;

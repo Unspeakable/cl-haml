@@ -108,15 +108,12 @@ But Ignore `self-closing', `inside-whitespace-remove' and
                                                (eof-value +eof+))
   (cond ((member :insert options)
          (let ((content (read-lisp-content stream)))
-           #+nil(if (stringp content)
-               `(cl-who:str ,content)
-               `(cl-who:str (princ-to-string ,content)))
-           `(cl-who:str ,content)))
+           `(str ,content)))
         ((member :escape-insert options)
          (let ((content (read-lisp-content stream)))
            (if (stringp content)
-               `(cl-who:esc ,content)
-               `(cl-who:esc (princ-to-string ,content)))))
+               `(esc ,content)
+               `(esc (princ-to-string ,content)))))
         (t
          (read-content stream eof-error-p eof-value))))
 

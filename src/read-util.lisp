@@ -29,7 +29,7 @@
 
 (defun get-insert-point (type sexp)
   (case type
-    (+haml+ (if (eql 'cl-who:htm (car sexp))
+    (+haml+ (if (eql 'htm (car sexp))
                 (car (last sexp))
                 (last sexp)))
     (+lisp+ (last sexp))

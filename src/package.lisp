@@ -2,6 +2,11 @@
 
 (defpackage :cl-haml
   (:use :cl)
+  (:import-from :cl-who
+                :str
+                :esc
+                :htm
+                :with-html-output-to-string)
   (:shadow :defconstant)
   (:export #:*function-package*
            #:*html-mode*
