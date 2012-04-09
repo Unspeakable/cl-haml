@@ -71,23 +71,8 @@ Must accept a function designater which must be called with the lock hold.")
 (defvar *functions* (make-hash-table :test #'equal)
   "Table mapping names to haml-function instances.")
 
-(defclass haml-function ()
-  ((path
-      :initarg :path
-      :accessor haml-function-path)
-   (time
-      :initarg :time
-      :accessor haml-function-time)
-   (function
-      :initarg :function
-      :accessor haml-function-function)))
-
-(defun make-haml-function (path time function)
-  "Constructor for class EMB-FUNCTION."
-  (make-instance 'haml-function
-                 :path path
-                 :time time
-                 :function function))
+(defstruct haml-function
+  path time function)
 
 (defun clear-haml-all ()
   "Remove all registered CL-HAML code."
@@ -99,67 +84,52 @@ Must accept a function designater which must be called with the lock hold.")
   (with-lock
     (remhash name *functions*)))
 
-(defun clear-haml-all-files ()
-  "Remove all registered file CL-HAML code(registered/executed by a pathname)."
-  (with-lock
-    (maphash (lambda (key value)
-               (declare (ignore value))
-               (when (typep key 'pathname)
-                 (remhash key *functions*)))
-             *functions*)))
-
 (defun get-haml-function (name)
   "Returns the named function implementing a registered CL-HAML code.
 Rebuilds it when text template was a file which has been modified."
   (with-lock
     (let* ((haml-function (gethash name *functions*))
            (path (when haml-function (haml-function-path haml-function))))
-      (cond ((and (not (typep name 'pathname))
-                  (null haml-function))
-               (error "Function ~S not found." name))
-            ((null haml-function)
+      (cond ((null haml-function)
                (return-from get-haml-function))
             ((and path
+                  (or (pathnamep path)
+                      (not (find #\LineFeed path)))
                   (> (file-write-date path)
                      (haml-function-time haml-function)))
                ;; Update when file is newer
-               (with-open-file (stream name :direction :input :external-format :utf-8)
-                 (setf (haml-function-time haml-function) (file-write-date path)
-                       (haml-function-function haml-function) (make-haml-fn stream)))))
+               (register-haml name name haml-function)))
       (haml-function-function haml-function))))
 
-(defgeneric register-haml (name code)
-  (:documentation "Register given $var{CODE} as $var{NAME}."))
-
-(defmethod register-haml (name (code pathname))
-  (let (function)
-    (with-open-file (stream code :direction :input :external-format :utf-8)
-      (setf function (make-haml-fn stream)))
+(defun register-haml (name code &optional obj)
+  "Register given $var{CODE} as $var{NAME}."
+  (let (function
+        (string-haml-p (and (not (pathnamep code))
+                            (find #\LineFeed code))))
+    (if string-haml-p
+        (with-input-from-string (stream code)
+          (setf function (make-haml-fn stream)))
+        (with-open-file (stream code
+                                :direction :input
+                                :external-format :utf-8)
+          (setf function (make-haml-fn stream))))
     (with-lock
       (setf (gethash name *functions*)
-            (make-haml-function code
-                                (file-write-date code)
-                                function)))))
+            (if obj
+                (setf (haml-function-time obj)
+                        (file-write-date code)
+                      (haml-function-function obj)
+                        function)
+                (make-haml-function :path code
+                                    :time (if string-haml-p
+                                              (get-universal-time)
+                                              (file-write-date code))
+                                    :function function))))))
 
-(defmethod register-haml (name (code string))
-  (let (function)
-    (with-input-from-string (stream code)
-      (setf function (make-haml-fn stream)))
-    (with-lock
-      (setf (gethash name *functions*)
-            (make-haml-function code
-                                (get-universal-time)
-                                function)))))
-
-(defgeneric execute-haml (name &key env)
-  (:documentation "Execute named CL-HAML code. Returns a string. Keyword parameter
-$var{ENV} to pass objects to the code. $var{ENV} must be a plist."))
-
-(defmethod execute-haml ((name string) &key env)
-  (funcall (get-haml-function name)
-           env))
-
-(defmethod execute-haml ((name pathname) &key env)
+(defun execute-haml (name &key env)
+  "Execute named CL-HAML code. Returns a string.
+   Keyword parameter $var{ENV} to pass objects to the code.
+   $var{ENV} must be a plist."
   (funcall (or (get-haml-function name)
                (haml-function-function (register-haml name name)))
            env))
