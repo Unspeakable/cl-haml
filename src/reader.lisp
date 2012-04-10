@@ -4,7 +4,7 @@
                              stream
                              &optional (eof-error-p nil)
                                        (eof-value +eof+))
-  (ecase parent-type
+  (case parent-type
     (+haml-multiple-comment+
        (read-line stream eof-error-p eof-value)
        `(,parent-type))
@@ -68,12 +68,12 @@
                  (let ((code (char-code c)))
                    (or (<= 33 code 127)
                        (<= 128 code))))
-             :return (let ((code (if (eq c eof-value)
-                                     -1
-                                     (char-code c))))
-                       (when (<= 33 code)
-                         (unread-char c stream))
-                       blank-count)
+           :do (let ((code (if (eq c eof-value)
+                               -1
+                               (char-code c))))
+                 (when (<= 33 code)
+                   (unread-char c stream))
+                 (return blank-count))
          :else if (char= c #\Space)
              :do (incf blank-count)
          :else if (char= c #\Newline)

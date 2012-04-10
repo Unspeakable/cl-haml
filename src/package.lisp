@@ -1,12 +1,19 @@
-(cl:in-package :cl-user)
+(in-package #-xyzzy :cl-user
+            #+xyzzy :user)
 
 (defpackage :cl-haml
-  (:use :cl)
-  (:import-from :cl-who
+  (:use #-xyzzy :cl
+        #+xyzzy :lisp)
+  (:import-from :who
                 :str
                 :esc
                 :htm
                 :with-html-output-to-string)
+  #+xyzzy
+  (:shadowing-import-from :ansi-loop
+                          :loop
+                          :loop-finish)
+  #+sbcl
   (:shadow :defconstant)
   (:export #:*function-package*
            #:*html-mode*

@@ -4,12 +4,12 @@
          (let ((c (peek-char nil input-stream nil nil)))
            (when (and c (char= c first-char))
              (read-char input-stream)
-             (coerce (loop :for c := (peek-char nil input-stream nil nil)
-                           :while (and c
-                                       (or (char= c special-char)
-                                           (|-_a-zA-Z0-9p| c)))
-                           :collect (read-char input-stream))
-                     'string)))))
+             (with-output-to-string (out)
+               (loop for c = (peek-char nil input-stream nil nil)
+                     while (and c
+                                (or (char= c  special-char)
+                                    (|-_a-zA-Z0-9p| c)))
+                     do (write-char (read-char input-stream) out)))))))
   (defun read-tag (stream)
     "Read Haml Tag. ex) %xxx -> :|xxx|."
     (intern (or (%read-haml-element-id-classes stream

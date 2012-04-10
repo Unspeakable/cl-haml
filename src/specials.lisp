@@ -1,5 +1,6 @@
 (in-package :cl-haml)
 
+#+sbcl
 (defmacro defconstant (name value &optional doc)
   "Make sure VALUE is evaluated only once."
   `(cl:defconstant ,name (if (boundp ',name) (symbol-value ',name) ,value)
@@ -18,7 +19,9 @@
 
 (defconstant +eof+ 'eof)
 
-(defvar *function-package* :cl-user)
+(defvar *function-package*
+  #-xyzzy :cl-user
+  #+xyzzy :user)
 (defvar *escape-html* nil "")
 (defvar *html-mode* :xhtml "")
 

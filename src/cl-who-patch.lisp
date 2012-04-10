@@ -1,9 +1,9 @@
-(in-package :cl-who)
+(in-package :who)
 
 (defun indent-p ()
   (and *indent* (not (minusp *indent*))))
 
-(defmethod convert-tag-to-string-list (tag attr-list body body-fn)
+(defun convert-tag-to-string-list (tag attr-list body body-fn)
   (let ((tag (string tag)))
     (nconc (when (indent-p)
              (list +newline+ (n-spaces *indent*)))
