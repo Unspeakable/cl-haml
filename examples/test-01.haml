@@ -1,0 +1,35 @@
+!!! XML
+!!! 5
+%html
+  %head
+    %meta{:charset "utf-8"}
+    %title CL-HAML TEST DATA 01
+    :javascript
+      function(x) {
+        alert(x);
+      }
+    :css
+      body { background-color: green; }
+      h1 { background-color: white; }
+    %script{:type "text/javascript" :src "/public/javascript/test-01.js"}
+    -#
+      Multiple line comment 1.
+      Multiple line comment 2.
+      Multiple line comment 3.
+  %body
+    %h1#system-title CL-HAML TEST DATA 01
+
+    #sample-space{:attr1 (format nil "value-~A" (1+ 10))}
+      - let ((temp1 "temp1-value") \
+             (temp2 "temp2-value"))
+        .class1.class2{:class "class3"}= temp1
+        = temp2
+        -# inline comment
+        %ul
+          - dotimes (i 10)
+            - if (evenp i) then
+              %li.even= i
+            - else
+              %li.odd= i
+
+

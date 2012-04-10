@@ -1,0 +1,96 @@
+-#
+  * Multiple Haml comment.
+  * Multiple HTML comment.
+  * Single line Haml Comment.
+  * Single line HTML Comment.
+  * Doctype !!!
+  * Doctype !!! XML
+  * First root Element
+  * Indented line
+  * Single down indented line
+  * Multiple down indented line
+  * Some indented line.
+
+  * %xxx
+  * %xxx{:attr "value"}
+  * %xxx{:attr1 "value1" :attr2 "value2"}
+  * %xxx#id
+  * %xxx.class
+  * %xxx.class1.class2
+  * %xxx#id.class
+  * %xxx#id.class1.class2
+  * %xxx.class#id
+  * %xxx.class1.class2#id
+  * %xxx.class1#id.class2
+  * %xxx#id{:attr "value"}
+  * %xxx.class{:attr "value"}
+  * %xxx.class1.class2{:attr "value"}
+  * %xxx#id.class{:attr "value"}
+  * %xxx#id.class1.class2{:attr "value"}
+  * %xxx.class#id{:attr "value"}
+  * %xxx.class1.class2#id{:attr "value"}
+  * %xxx.class1#id.class2{:attr "value"}
+  * %xxx#id{:attr1 "value1" :attr2 "value2"}
+  * %xxx.class{:attr1 "value1" :attr2 "value2"}
+  * %xxx.class1.class2{:attr1 "value1" :attr2 "value2"}
+  * %xxx#id.class{:attr1 "value1" :attr2 "value2"}
+  * %xxx#id.class1.class2{:attr1 "value1" :attr2 "value2"}
+  * %xxx.class#id{:attr1 "value1" :attr2 "value2"}
+  * %xxx.class1.class2#id{:attr1 "value1" :attr2 "value2"}
+  * %xxx.class1#id.class2{:attr1 "value1" :attr2 "value2"}
+  * #id
+  * .class
+  * #id.class
+  * .class#id
+  * #id{:attr "value"}
+  * .class{:attr "value"}
+  * #id.class{:attr "value"}
+  * .class#id{:attr "value"}
+  * %xxx.class1{:class "class2"}
+
+  * %xxx/
+  * %xxx{:attr "value"}/
+  * %xxx#id/
+  * %xxx.class/
+  * %xxx#id.class/
+  * #id/
+  * .class/
+  * #id{:attr "value"}/
+  * #id.class{:attr "value"}/
+
+  * %xxx Hello
+  * %xxx{:attr "value"} Hello
+  * %xxx#id Hello
+  * %xxx.class Hello
+  * %xxx $<>'"
+  * %xxx.class= (random 10)
+  * %xxx.class!= (random 10)
+  * %xxx.class&= (random 10)
+  * %xxx.class= "$<>'\""
+  * %xxx.class!= "$<>'\""
+  * %xxx.class&= "$<>'\""
+
+  *
+!!! 5
+-# Root level element
+%html
+  -# Blank line
+
+  -# Indented line, non attributes.
+  %head
+
+    -# Indented line, a attribute, self-close.
+    %meta{:charset "UTF-8"}/
+
+    -# Same line, multi attributes, self-close.
+    %meta{:http-equiv "language" :content "ja"}/
+
+    -# Same line, a attribute, inline body.
+    %script{:type "text/javascript"} function onClickSample() {alert("Hello!");}
+
+    -# Same line, a attribute, nested body.
+    %script{:type "text/javascript"}
+      function onClickSample() {alert("Hello!");}
+
+    -# Down indented line, non attribute, inline body.
+    %title Hello, CL-HAML world!
