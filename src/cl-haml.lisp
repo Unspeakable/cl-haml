@@ -116,10 +116,13 @@ Rebuilds it when text template was a file which has been modified."
     (with-lock
       (setf (gethash name *functions*)
             (if obj
-                (setf (haml-function-time obj)
-                        (file-write-date code)
-                      (haml-function-function obj)
-                        function)
+                (progn
+                  (setf
+                    (haml-function-time obj)
+                    (file-write-date code)
+                    (haml-function-function obj)
+                    function)
+                  obj)
                 (make-haml-function :path code
                                     :time (if string-haml-p
                                               (get-universal-time)
