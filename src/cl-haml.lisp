@@ -5,17 +5,18 @@
           (loop for c = #1=(peek-char nil in nil +eof+)
                 while (or (eql c #\!) (and (eql c #\-)))
                 if (eql c #\!)
-                  collect (cdr (assoc (read-line in)
-                                       (cdr (assoc *html-mode* *doctypes*))
-                                       :test #'string-equal)) :into result
-                
+                  collect (cdr (assoc (string-right-trim '(#\Return #\Space)
+                                                         (read-line in))
+                                      (cdr (assoc *html-mode* *doctypes*))
+                                      :test #'string-equal)) :into result
                 else
-                  do (read-char in)
-                      (if (eql #1# #\#)
-                          (read-line in)
-                          (progn
-                            (unread-char #\- in)
-                            (loop-finish)))
+                  do (progn
+                       (read-char in)
+                       (if (eql #1# #\#)
+                           (read-line in)
+                           (progn
+                             (unread-char #\- in)
+                             (loop-finish))))
                 finally (return result))))
 
 (defun read-haml (stream)
@@ -117,11 +118,10 @@ Rebuilds it when text template was a file which has been modified."
       (setf (gethash name *functions*)
             (if obj
                 (progn
-                  (setf
-                    (haml-function-time obj)
-                    (file-write-date code)
-                    (haml-function-function obj)
-                    function)
+                  (setf (haml-function-time obj)
+                          (file-write-date code)
+                        (haml-function-function obj)
+                          function)
                   obj)
                 (make-haml-function :path code
                                     :time (if string-haml-p
