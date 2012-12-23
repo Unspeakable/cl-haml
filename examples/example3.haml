@@ -1,0 +1,27 @@
+!!! 5
+%html
+  %head
+    = (include-haml "head.haml")
+    %title= $title
+  %body
+    %header.system
+      %h1{:style "width:600px;}
+        %a{:href "/" :title "TOP"}= 電動ひやむぎ
+
+    #contents
+      - if $success-messaage
+        %p.success-message= $success-message
+      - elseif xxx
+        xxx
+      #articles
+        = (blog.view:make-paging-link (or $page 1) $max-entries)
+        - dolist $entries
+          %article.content
+            %header.article
+              %p.entry-pubdate
+                %a{:title 
+
+
+
+-#
+  dolist, if - elseif 辺りは特殊処理にしたほうが良さそう

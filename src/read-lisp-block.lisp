@@ -3,15 +3,8 @@
 (defun read-haml-lisp-block (stream)
   (let ((line (concat-continue-lines stream (read-line stream nil nil))))
     (with-input-from-string (in line)
-      (let* ((sexp (loop :for x := (read in nil nil) :while x :collect x))
-             (first-item (car sexp)))
-        (if (symbolp first-item)
-            (cond ((string= first-item "if")
-                     )
-                  ((string= first-item "else"))
-                  ((string= first-item "dolist"))
-                  (t (list +lisp+ sexp)))
-            (list +lisp+ sexp))))))
+      (list +lisp+
+            `(,@(loop :for x := (read in nil nil) :while x :collect x))))))
 
 (defun read-haml-comment (stream eof-value)
   (let ((line (read-line stream nil eof-value)))
