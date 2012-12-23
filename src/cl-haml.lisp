@@ -33,13 +33,19 @@
    (delete nil
            (mapcar (lambda (x)
                      (and (symbolp x)
-                          (char= #\$ (char (string x) 0))
+                          (or (char= #\$ (char (string x) 0))
+                              (char= #\@ (char (string x) 0)))
                           x))
                    (flatten sexp)))))
 
+(defun make-haml-readtable ()
+  (let ((*readtable* (copy-readtable nil)))
+    *readtable*))
+
 (defun make-haml-fn (stream)
   (multiple-value-bind (doctype body)
-      (read-haml stream)
+      (let ((*readtable* (make-haml-readtable)))
+        (read-haml stream))
     (let ((args (haml-fn-args body))
           (env  (intern (string :env) *function-package*)))
       (compile nil
@@ -103,17 +109,17 @@ Rebuilds it when text template was a file which has been modified."
       (haml-function-function haml-function))))
 
 (defun register-haml (name code &optional obj)
-  "Register given $var{CODE} as $var{NAME}."
   (let (function
         (string-haml-p (and (not (pathnamep code))
                             (find #\LineFeed code))))
-    (if string-haml-p
-        (with-input-from-string (stream code)
-          (setf function (make-haml-fn stream)))
-        (with-open-file (stream code
-                                :direction :input
-                                :external-format :utf-8)
-          (setf function (make-haml-fn stream))))
+    (setf function
+          (if string-haml-p
+              (with-input-from-string (stream code)
+                (make-haml-fn stream))
+              (with-open-file (stream code
+                                      :direction :input
+                                      :external-format :utf-8)
+                (make-haml-fn stream))))
     (with-lock
       (setf (gethash name *functions*)
             (if obj
@@ -135,4 +141,12 @@ Rebuilds it when text template was a file which has been modified."
    $var{ENV} must be a plist."
   (funcall (or (get-haml-function name)
                (haml-function-function (register-haml name name)))
+           env))
+
+(defun execute-haml-from-string (code &key env)
+  "Execute string CL-HAML code. Returns a string.
+   Keyword parameter $var{CODE} to string objects to the code.
+   $var{ENV} must be a plist."
+  (funcall (with-input-from-string (stream code)
+             (make-haml-fn stream))
            env))

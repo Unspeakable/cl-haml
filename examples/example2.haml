@@ -19,7 +19,7 @@
   %body
     %h1 Hello, World
 
-    %table{:border "1"}
+    %table{:border 1}
       %tr
         %th /
         - dotimes (i 9)
@@ -30,4 +30,4 @@
           - dotimes (j 9)
             %td= (* (1+ i) (1+ j))
 
-    %div= (or $argument "No Value")
+    %div= (or @argument "No Value")

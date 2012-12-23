@@ -48,3 +48,25 @@
                                  (string-trim *whitespace-chars*
                                               (read-line in))))))
   line)
+
+(defun end-of-line-p (stream)
+  "行の終端か否か判定(しつつ、行終端文字を読み飛ばす)"
+  (let ((char (peek-char nil stream nil #\null)))
+    (cond ((eql char #\return)
+           (read-char stream)
+           (if (eql (peek-char nil stream nil #\null) #\linefeed)
+               (read-char stream)
+               char))
+          ((eql char #\linefeed)
+           (read-char stream)))))
+
+(defun read-and-count-space (stream)
+  "連続する半角スペースを読み飛ばしつつ、個数を数える"
+  (do ((c (read-char stream nil nil)
+          (read-char stream nil nil))
+       (i 0 (1+ i)))
+      ((or (null c)
+           (char/= c #\Space))
+       (unless (null c)
+         (unread-char c stream))
+       i)))

@@ -32,6 +32,16 @@
 
 (defun read-attribute-key (stream &optional (eof-error-p nil)
                                             (eof-value +eof+))
+  (let ((*readtable* (copy-readtable nil)))
+    (setf (readtable-case *readtable*) :preserve)
+    (set-macro-character #\' (lambda (stream ch)
+                               (declare (ignore ch))
+                               (sb-impl::read-string stream #\')))
+    (let ((key (read stream eof-error-p eof-value)))
+      (cond ((keywordp key) key)
+            ((stringp  key) (intern key :keyword))
+            (t (error "Type Error: Attribute key. [~S]" key)))))
+  #+nil
   (if (peek-char t stream eof-error-p eof-value)
       (intern (with-output-to-string (out)
                 (read-char stream)
@@ -51,12 +61,19 @@
                    (char= char #\{)))
       ;; Skip '(' or '{'
       (read-char stream)
-      (let ((close-paren (if (char= char #\() #\) #\})))
+      (let ((close-paren (if (char= char #\() #\) #\}))
+            (*readtable* (copy-readtable nil)))
+        (set-syntax-from-char #\, #\Space)
+        (set-syntax-from-char #\} #\))
         (loop :for next-char := #1#
               :until (or (eq next-char eof-value)
                          (char= next-char close-paren))
               :collect (read-attribute-key stream) :into result
-              :collect (read stream) :into result
+              :collect (let ((value (read stream)))
+                         (if (and (symbolp value)
+                                  (string= '=> value))
+                             (read stream)
+                             value)) :into result
               :finally (when (equal next-char close-paren)
                          (read-char stream))
                        (return result))))))

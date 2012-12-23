@@ -1,9 +1,7 @@
-(in-package #-xyzzy :cl-user
-            #+xyzzy :user)
+(in-package :common-lisp-user)
 
 (defpackage :cl-haml
-  (:use #-xyzzy :cl
-        #+xyzzy :lisp)
+  (:use :common-lisp)
   (:import-from :who
                 :str
                 :esc
