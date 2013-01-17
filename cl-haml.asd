@@ -7,6 +7,7 @@
   :serial t
   :description "Haml like XHTML generator."
   :version "1.0.2"
+  #+asdf-unicode :encoding #+asdf-unicode :utf-8
   :author "Hiroyuki Tokunaga <inuzini.jiro@gmail.com>"
   :license "MIT License"
   :depends-on (:cl-who)

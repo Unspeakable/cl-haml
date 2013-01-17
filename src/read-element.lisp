@@ -34,6 +34,7 @@
                                             (eof-value +eof+))
   (let ((*readtable* (copy-readtable nil)))
     (setf (readtable-case *readtable*) :preserve)
+    #+sbcl
     (set-macro-character #\' (lambda (stream ch)
                                (declare (ignore ch))
                                (sb-impl::read-string stream #\')))

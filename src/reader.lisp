@@ -65,9 +65,7 @@
    (loop :with blank-count := 0
          :for c := (read-char stream eof-error-p eof-value)
          :if (or (eq c eof-value)
-                 (let ((code (char-code c)))
-                   (or (<= 33 code 127)
-                       (<= 128 code))))
+                 (<= 33 (char-code c)))
            :do (let ((code (if (eq c eof-value)
                                -1
                                (char-code c))))
